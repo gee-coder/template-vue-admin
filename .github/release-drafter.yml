@@ -1,0 +1,70 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+template: |
+  ## 变更摘要
+
+  $CHANGES
+
+  ## 升级提示
+
+  - 请同步检查环境变量、接口契约与布局说明
+  - 若涉及权限模型调整，请同步验证动态菜单与按钮权限
+categories:
+  - title: "Features"
+    labels:
+      - "type:feature"
+  - title: "Fixes"
+    labels:
+      - "type:bug"
+  - title: "Docs"
+    labels:
+      - "type:docs"
+  - title: "Maintenance"
+    labels:
+      - "type:chore"
+      - "dependencies"
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: '\<*_&'
+exclude-labels:
+  - "skip-changelog"
+version-resolver:
+  major:
+    labels:
+      - "type:breaking"
+  minor:
+    labels:
+      - "type:feature"
+  patch:
+    labels:
+      - "type:bug"
+      - "type:docs"
+      - "type:chore"
+      - "dependencies"
+  default: patch
+autolabeler:
+  - label: "type:docs"
+    files:
+      - "*.md"
+      - ".github/**"
+  - label: "area:ui"
+    files:
+      - "src/components/**"
+      - "src/layouts/**"
+      - "src/views/**"
+  - label: "area:auth"
+    files:
+      - "src/api/modules/auth.ts"
+      - "src/stores/auth.ts"
+      - "src/router/guards/**"
+  - label: "area:rbac"
+    files:
+      - "src/views/system/**"
+      - "src/stores/permission.ts"
+      - "src/router/dynamic-routes.ts"
+  - label: "area:infra"
+    files:
+      - "vite.config.ts"
+      - "uno.config.ts"
+      - ".github/workflows/**"
+footer: |
+  更多协作约定见 `COLLABORATION.md`、`MAINTAINERS.md` 与 `RELEASE.md`。

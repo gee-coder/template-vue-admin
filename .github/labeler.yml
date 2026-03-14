@@ -1,0 +1,33 @@
+"type:docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - ".github/**"
+
+"area:ui":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/components/**"
+          - "src/layouts/**"
+          - "src/views/**"
+
+"area:auth":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/api/modules/auth.ts"
+          - "src/stores/auth.ts"
+          - "src/router/guards/**"
+
+"area:rbac":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/views/system/**"
+          - "src/stores/permission.ts"
+          - "src/router/dynamic-routes.ts"
+
+"area:infra":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "vite.config.ts"
+          - "uno.config.ts"
+          - ".github/workflows/**"
