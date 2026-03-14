@@ -2,10 +2,10 @@
   <section class="page-shell">
     <header class="surface-card hero">
       <div>
-        <h2 class="page-title">Dashboard</h2>
-        <p class="page-subtitle">A compact overview for users, roles, menus, and platform readiness.</p>
+        <h2 class="page-title">工作台</h2>
+        <p class="page-subtitle">快速查看账号、角色、菜单和整套模板的当前状态。</p>
       </div>
-      <el-tag effect="dark" type="success">Template Ready</el-tag>
+      <el-tag effect="dark" type="success">模板已就绪</el-tag>
     </header>
 
     <div class="metrics">
@@ -18,21 +18,21 @@
 
     <div class="grid">
       <article class="surface-card card">
-        <h3>System baseline</h3>
+        <h3>基础能力</h3>
         <ul>
-          <li>JWT access token + refresh token rotation</li>
-          <li>RBAC menu and permission routing</li>
-          <li>User, role, and menu CRUD scaffolding</li>
-          <li>Website contact form DTO already aligned</li>
+          <li>令牌登录与刷新令牌轮转</li>
+          <li>基于角色的菜单与权限控制</li>
+          <li>用户、角色、菜单的完整管理骨架</li>
+          <li>官网联系表单与后台数据模型已打通</li>
         </ul>
       </article>
       <article class="surface-card card">
-        <h3>Suggested next steps</h3>
+        <h3>下一步建议</h3>
         <ul>
-          <li>Add your first domain module in backend services</li>
-          <li>Connect analytics or error reporting hooks</li>
-          <li>Refine role permissions for your operators</li>
-          <li>Replace demo copy with product-specific metrics</li>
+          <li>先补第一个业务域模块，把模板变成产品</li>
+          <li>接入埋点、监控或错误上报能力</li>
+          <li>按真实岗位细化角色权限</li>
+          <li>把演示指标替换成你的业务数据</li>
         </ul>
       </article>
     </div>
@@ -46,10 +46,10 @@ import { useAuthStore } from '@/store/auth'
 const authStore = useAuthStore()
 
 const metrics = computed(() => [
-  { label: 'Current user', value: authStore.profile?.nickname || 'Admin', note: authStore.profile?.username || 'admin' },
-  { label: 'Permissions', value: authStore.permissions.length, note: 'Granted by current roles' },
-  { label: 'Auth mode', value: 'JWT', note: 'With refresh token rotation' },
-  { label: 'Ready apps', value: 4, note: 'Backend, admin, website, miniapp' },
+  { label: '当前用户', value: authStore.profile?.nickname || '管理员', note: authStore.profile?.username || 'admin' },
+  { label: '权限数量', value: authStore.permissions.length, note: '来自当前角色授权' },
+  { label: '鉴权模式', value: '令牌鉴权', note: '已接入刷新令牌轮转' },
+  { label: '就绪应用', value: 4, note: '后端、后台、官网、小程序' },
 ])
 </script>
 
@@ -109,4 +109,3 @@ const metrics = computed(() => [
   }
 }
 </style>
-

@@ -1,7 +1,7 @@
 <template>
   <el-drawer :model-value="visible" :title="title" size="460px" @close="$emit('update:visible', false)">
     <el-form label-position="top" :model="localForm">
-      <el-form-item label="Parent">
+      <el-form-item label="上级菜单">
         <el-tree-select
           v-model="localForm.parentId"
           :data="options"
@@ -12,22 +12,22 @@
           style="width: 100%"
         />
       </el-form-item>
-      <el-form-item label="Name"><el-input v-model="localForm.name" /></el-form-item>
-      <el-form-item label="Title"><el-input v-model="localForm.title" /></el-form-item>
-      <el-form-item label="Path"><el-input v-model="localForm.path" /></el-form-item>
-      <el-form-item label="Component"><el-input v-model="localForm.component" /></el-form-item>
-      <el-form-item label="Permission"><el-input v-model="localForm.permission" /></el-form-item>
-      <el-form-item label="Type">
+      <el-form-item label="菜单名称"><el-input v-model="localForm.name" /></el-form-item>
+      <el-form-item label="显示标题"><el-input v-model="localForm.title" /></el-form-item>
+      <el-form-item label="路由路径"><el-input v-model="localForm.path" /></el-form-item>
+      <el-form-item label="组件路径"><el-input v-model="localForm.component" /></el-form-item>
+      <el-form-item label="权限标识"><el-input v-model="localForm.permission" /></el-form-item>
+      <el-form-item label="菜单类型">
         <el-radio-group v-model="localForm.type">
-          <el-radio label="directory">Directory</el-radio>
-          <el-radio label="menu">Menu</el-radio>
-          <el-radio label="button">Button</el-radio>
+          <el-radio label="directory">目录</el-radio>
+          <el-radio label="menu">菜单</el-radio>
+          <el-radio label="button">按钮</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="$emit('update:visible', false)">Cancel</el-button>
-      <el-button type="primary" :loading="loading" @click="$emit('save', { ...localForm })">Save</el-button>
+      <el-button @click="$emit('update:visible', false)">取消</el-button>
+      <el-button type="primary" :loading="loading" @click="$emit('save', { ...localForm })">保存</el-button>
     </template>
   </el-drawer>
 </template>
@@ -77,7 +77,7 @@ const localForm = reactive<MenuFormModel>({
   status: 'enabled',
 })
 
-const title = computed(() => (props.mode === 'create' ? 'Create menu' : 'Edit menu'))
+const title = computed(() => (props.mode === 'create' ? '新建菜单' : '编辑菜单'))
 
 watch(
   () => props.form,
@@ -85,4 +85,3 @@ watch(
   { immediate: true, deep: true },
 )
 </script>
-

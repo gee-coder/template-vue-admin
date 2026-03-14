@@ -2,9 +2,9 @@
   <div class="not-found">
     <article class="surface-card card">
       <span>404</span>
-      <h1>Nothing lives here yet.</h1>
-      <p>The route does not exist or the current role has not loaded it.</p>
-      <el-button type="primary" @click="router.push('/dashboard')">Back to dashboard</el-button>
+      <h1>这个页面暂时不存在。</h1>
+      <p>可能是路由地址不正确，或者当前账号还没有加载到这个页面权限。</p>
+      <el-button type="primary" @click="router.push('/dashboard')">返回工作台</el-button>
     </article>
   </div>
 </template>
@@ -43,4 +43,3 @@ const router = useRouter()
   color: #64748b;
 }
 </style>
-

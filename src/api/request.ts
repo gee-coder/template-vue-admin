@@ -52,7 +52,7 @@ service.interceptors.response.use(
       location.href = '/login'
     }
 
-    return Promise.reject(new Error(error.response?.data?.message || error.message || 'Request failed'))
+    return Promise.reject(new Error(error.response?.data?.message || error.message || '请求失败'))
   },
 )
 
@@ -67,4 +67,3 @@ async function refreshAccessToken() {
 }
 
 export default service
-

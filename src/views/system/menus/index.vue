@@ -2,24 +2,28 @@
   <section class="page-shell">
     <header class="page-head">
       <div>
-        <h2 class="page-title">Menus</h2>
-        <p class="page-subtitle">Map menu trees, route components, and permission nodes.</p>
+        <h2 class="page-title">菜单管理</h2>
+        <p class="page-subtitle">维护菜单树、路由组件和权限节点之间的映射关系。</p>
       </div>
-      <el-button type="success" @click="openCreate">New menu</el-button>
+      <el-button type="success" @click="openCreate">新建菜单</el-button>
     </header>
 
     <div class="surface-card panel">
       <el-table :data="menus" row-key="id" stripe default-expand-all>
-        <el-table-column prop="title" label="Title" min-width="160" />
-        <el-table-column prop="name" label="Name" min-width="140" />
-        <el-table-column prop="type" label="Type" min-width="120" />
-        <el-table-column prop="path" label="Path" min-width="180" />
-        <el-table-column prop="component" label="Component" min-width="220" />
-        <el-table-column prop="permission" label="Permission" min-width="180" />
-        <el-table-column label="Actions" min-width="150" fixed="right">
+        <el-table-column prop="title" label="标题" min-width="160" />
+        <el-table-column prop="name" label="名称" min-width="140" />
+        <el-table-column prop="type" label="类型" min-width="120">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openEdit(row)">Edit</el-button>
-            <el-button link type="danger" @click="removeMenu(row.id)">Delete</el-button>
+            {{ row.type === 'directory' ? '目录' : row.type === 'menu' ? '菜单' : '按钮' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="path" label="路由路径" min-width="180" />
+        <el-table-column prop="component" label="组件路径" min-width="220" />
+        <el-table-column prop="permission" label="权限标识" min-width="180" />
+        <el-table-column label="操作" min-width="150" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
+            <el-button link type="danger" @click="removeMenu(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -102,20 +106,20 @@ async function saveMenu(payload: typeof form) {
     } else if (currentId.value) {
       await updateMenuApi(currentId.value, payload)
     }
-    ElMessage.success('Saved')
+    ElMessage.success('保存成功')
     drawerVisible.value = false
     await loadMenus()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : 'Save failed')
+    ElMessage.error(error instanceof Error ? error.message : '保存失败')
   } finally {
     saving.value = false
   }
 }
 
 async function removeMenu(id: number) {
-  await ElMessageBox.confirm('Delete this menu item?', 'Confirm', { type: 'warning' })
+  await ElMessageBox.confirm('确认删除这个菜单项吗？', '删除确认', { type: 'warning' })
   await deleteMenuApi(id)
-  ElMessage.success('Deleted')
+  ElMessage.success('删除成功')
   await loadMenus()
 }
 </script>
@@ -131,4 +135,3 @@ async function removeMenu(id: number) {
   padding: 12px;
 }
 </style>
-

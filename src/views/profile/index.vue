@@ -2,8 +2,8 @@
   <section class="page-shell">
     <header class="surface-card profile-hero">
       <div>
-        <h2 class="page-title">Profile</h2>
-        <p class="page-subtitle">The authenticated operator profile from `/auth/profile`.</p>
+        <h2 class="page-title">个人中心</h2>
+        <p class="page-subtitle">这里展示当前登录账号从 `/auth/profile` 返回的资料与权限。</p>
       </div>
       <el-avatar :size="54">{{ initials }}</el-avatar>
     </header>
@@ -11,31 +11,31 @@
     <article class="surface-card profile-card">
       <div class="profile-grid">
         <div>
-          <span>Nickname</span>
+          <span>昵称</span>
           <strong>{{ profile?.nickname || '-' }}</strong>
         </div>
         <div>
-          <span>Username</span>
+          <span>用户名</span>
           <strong>{{ profile?.username || '-' }}</strong>
         </div>
         <div>
-          <span>Email</span>
+          <span>邮箱</span>
           <strong>{{ profile?.email || '-' }}</strong>
         </div>
         <div>
-          <span>Phone</span>
+          <span>手机号</span>
           <strong>{{ profile?.phone || '-' }}</strong>
         </div>
       </div>
       <div class="stack">
         <div>
-          <span>Roles</span>
+          <span>角色</span>
           <div class="chips">
             <el-tag v-for="role in profile?.roles || []" :key="role" effect="plain">{{ role }}</el-tag>
           </div>
         </div>
         <div>
-          <span>Permissions</span>
+          <span>权限</span>
           <div class="chips">
             <el-tag v-for="permission in profile?.permissions || []" :key="permission" type="success" effect="plain">
               {{ permission }}
@@ -53,7 +53,7 @@ import { useAuthStore } from '@/store/auth'
 
 const authStore = useAuthStore()
 const profile = computed(() => authStore.profile)
-const initials = computed(() => (profile.value?.nickname || 'NA').slice(0, 2).toUpperCase())
+const initials = computed(() => (profile.value?.nickname || '管理').slice(0, 2).toUpperCase())
 </script>
 
 <style scoped>
@@ -103,4 +103,3 @@ const initials = computed(() => (profile.value?.nickname || 'NA').slice(0, 2).to
   }
 }
 </style>
-

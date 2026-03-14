@@ -1,22 +1,22 @@
 <template>
   <el-drawer :model-value="visible" :title="title" size="460px" @close="$emit('update:visible', false)">
     <el-form label-position="top" :model="localForm">
-      <el-form-item label="Name">
+      <el-form-item label="角色名称">
         <el-input v-model="localForm.name" />
       </el-form-item>
-      <el-form-item label="Code" v-if="mode === 'create'">
+      <el-form-item label="角色编码" v-if="mode === 'create'">
         <el-input v-model="localForm.code" />
       </el-form-item>
-      <el-form-item label="Remark">
+      <el-form-item label="备注">
         <el-input v-model="localForm.remark" type="textarea" :rows="3" />
       </el-form-item>
-      <el-form-item label="Status">
+      <el-form-item label="状态">
         <el-radio-group v-model="localForm.status">
-          <el-radio label="enabled">Enabled</el-radio>
-          <el-radio label="disabled">Disabled</el-radio>
+          <el-radio label="enabled">启用</el-radio>
+          <el-radio label="disabled">停用</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="Menus">
+      <el-form-item label="关联菜单">
         <el-tree-select
           v-model="localForm.menuIds"
           :data="menuOptions"
@@ -29,8 +29,8 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="$emit('update:visible', false)">Cancel</el-button>
-      <el-button type="primary" :loading="loading" @click="$emit('save', { ...localForm })">Save</el-button>
+      <el-button @click="$emit('update:visible', false)">取消</el-button>
+      <el-button type="primary" :loading="loading" @click="$emit('save', { ...localForm })">保存</el-button>
     </template>
   </el-drawer>
 </template>
@@ -68,7 +68,7 @@ const localForm = reactive<RoleFormModel>({
   menuIds: [],
 })
 
-const title = computed(() => (props.mode === 'create' ? 'Create role' : 'Edit role'))
+const title = computed(() => (props.mode === 'create' ? '新建角色' : '编辑角色'))
 
 watch(
   () => props.form,
@@ -76,4 +76,3 @@ watch(
   { immediate: true, deep: true },
 )
 </script>
-

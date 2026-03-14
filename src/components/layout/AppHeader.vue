@@ -1,24 +1,24 @@
 <template>
   <header class="surface-card header">
     <div>
-      <h1>Operating dashboard</h1>
-      <p>Watch core operations, people, and permissions from one place.</p>
+      <h1>运营总览</h1>
+      <p>在一个工作台里查看账号、权限和系统运行情况。</p>
     </div>
 
     <div class="header-actions">
-      <el-tag type="success" effect="plain">JWT + RBAC</el-tag>
+      <el-tag type="success" effect="plain">统一鉴权 + 权限控制</el-tag>
       <el-dropdown trigger="click" @command="onCommand">
         <div class="user-chip">
           <el-avatar>{{ initials }}</el-avatar>
           <div>
-            <strong>{{ authStore.profile?.nickname || 'Admin' }}</strong>
+            <strong>{{ authStore.profile?.nickname || '管理员' }}</strong>
             <p>{{ authStore.profile?.username || 'admin' }}</p>
           </div>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="profile">Profile</el-dropdown-item>
-            <el-dropdown-item command="logout">Logout</el-dropdown-item>
+            <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -39,7 +39,7 @@ const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 const appStore = useAppStore()
 
-const initials = computed(() => (authStore.profile?.nickname || 'NA').slice(0, 2).toUpperCase())
+const initials = computed(() => (authStore.profile?.nickname || '管理').slice(0, 2).toUpperCase())
 
 async function onCommand(command: string) {
   if (command === 'profile') {
@@ -99,4 +99,3 @@ async function onCommand(command: string) {
   }
 }
 </style>
-

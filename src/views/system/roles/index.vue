@@ -2,31 +2,33 @@
   <section class="page-shell">
     <header class="page-head">
       <div>
-        <h2 class="page-title">Roles</h2>
-        <p class="page-subtitle">Define permission bundles and bind menus to operators.</p>
+        <h2 class="page-title">角色管理</h2>
+        <p class="page-subtitle">管理角色权限包，并为不同岗位绑定菜单能力。</p>
       </div>
-      <el-button type="success" @click="openCreate">New role</el-button>
+      <el-button type="success" @click="openCreate">新建角色</el-button>
     </header>
 
     <div class="surface-card panel">
       <el-table :data="roles" stripe>
-        <el-table-column prop="name" label="Name" min-width="140" />
-        <el-table-column prop="code" label="Code" min-width="140" />
-        <el-table-column prop="status" label="Status" min-width="120">
+        <el-table-column prop="name" label="角色名称" min-width="140" />
+        <el-table-column prop="code" label="角色编码" min-width="140" />
+        <el-table-column prop="status" label="状态" min-width="120">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'enabled' ? 'success' : 'info'">{{ row.status }}</el-tag>
+            <el-tag :type="row.status === 'enabled' ? 'success' : 'info'">
+              {{ row.status === 'enabled' ? '启用' : '停用' }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="remark" label="Remark" min-width="200" />
-        <el-table-column label="Menus" min-width="260">
+        <el-table-column prop="remark" label="备注" min-width="200" />
+        <el-table-column label="关联菜单" min-width="260">
           <template #default="{ row }">
             <el-tag v-for="menu in row.menus" :key="menu.id" effect="plain">{{ menu.title }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Actions" min-width="160" fixed="right">
+        <el-table-column label="操作" min-width="160" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openEdit(row)">Edit</el-button>
-            <el-button link type="danger" @click="removeRole(row.id)">Delete</el-button>
+            <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
+            <el-button link type="danger" @click="removeRole(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -100,20 +102,20 @@ async function saveRole(payload: typeof form) {
     } else if (currentId.value) {
       await updateRoleApi(currentId.value, payload)
     }
-    ElMessage.success('Saved')
+    ElMessage.success('保存成功')
     drawerVisible.value = false
     await loadRoles()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : 'Save failed')
+    ElMessage.error(error instanceof Error ? error.message : '保存失败')
   } finally {
     saving.value = false
   }
 }
 
 async function removeRole(id: number) {
-  await ElMessageBox.confirm('Delete this role?', 'Confirm', { type: 'warning' })
+  await ElMessageBox.confirm('确认删除这个角色吗？', '删除确认', { type: 'warning' })
   await deleteRoleApi(id)
-  ElMessage.success('Deleted')
+  ElMessage.success('删除成功')
   await loadRoles()
 }
 </script>
@@ -129,4 +131,3 @@ async function removeRole(id: number) {
   padding: 12px;
 }
 </style>
-

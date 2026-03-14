@@ -3,8 +3,8 @@
     <div class="brand">
       <div class="brand-mark">N</div>
       <div>
-        <strong>Nex Admin</strong>
-        <p>Lean startup console</p>
+        <strong>Nex 管理台</strong>
+        <p>创业项目运营后台</p>
       </div>
     </div>
 
@@ -12,12 +12,12 @@
       <el-menu :default-active="route.path" class="sidebar-menu" router>
         <el-menu-item index="/dashboard">
           <el-icon><House /></el-icon>
-          <span>Dashboard</span>
+          <span>工作台</span>
         </el-menu-item>
         <el-sub-menu v-if="systemMenus.length" index="/system">
           <template #title>
             <el-icon><Setting /></el-icon>
-            <span>System</span>
+            <span>系统管理</span>
           </template>
           <el-menu-item v-for="menu in systemMenus" :key="menu.id" :index="menu.path">
             <span>{{ menu.title }}</span>
@@ -25,7 +25,7 @@
         </el-sub-menu>
         <el-menu-item index="/profile">
           <el-icon><User /></el-icon>
-          <span>Profile</span>
+          <span>个人中心</span>
         </el-menu-item>
       </el-menu>
     </el-scrollbar>
@@ -88,4 +88,3 @@ const systemMenus = computed(() =>
   }
 }
 </style>
-

@@ -1,6 +1,6 @@
 <template>
   <el-breadcrumb separator="/">
-    <el-breadcrumb-item>Home</el-breadcrumb-item>
+    <el-breadcrumb-item>首页</el-breadcrumb-item>
     <el-breadcrumb-item v-for="item in crumbs" :key="item.path">
       {{ item.title }}
     </el-breadcrumb-item>
@@ -22,4 +22,3 @@ const crumbs = computed(() =>
     })),
 )
 </script>
-

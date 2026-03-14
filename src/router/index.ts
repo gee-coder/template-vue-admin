@@ -8,7 +8,7 @@ const baseRoutes: RouteRecordRaw[] = [
     path: '/login',
     name: 'login',
     component: () => import('@/views/auth/LoginView.vue'),
-    meta: { public: true, title: 'Login' },
+    meta: { public: true, title: '登录' },
   },
   {
     path: '/',
@@ -19,13 +19,13 @@ const baseRoutes: RouteRecordRaw[] = [
         path: '/dashboard',
         name: 'dashboard-home',
         component: () => import('@/views/dashboard/index.vue'),
-        meta: { title: 'Dashboard' },
+        meta: { title: '工作台' },
       },
       {
         path: '/profile',
         name: 'profile',
         component: () => import('@/views/profile/index.vue'),
-        meta: { title: 'Profile' },
+        meta: { title: '个人中心' },
       },
     ],
   },
@@ -33,7 +33,7 @@ const baseRoutes: RouteRecordRaw[] = [
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/error/NotFoundView.vue'),
-    meta: { public: true, title: 'Not Found' },
+    meta: { public: true, title: '页面不存在' },
   },
 ]
 
@@ -81,7 +81,7 @@ router.beforeEach(async (to) => {
 })
 
 router.afterEach((to) => {
-  document.title = `${String(to.meta.title || 'Admin')} | ${import.meta.env.VITE_APP_TITLE || 'Nex Admin'}`
+  document.title = `${String(to.meta.title || '管理台')} | ${import.meta.env.VITE_APP_TITLE || 'Nex 管理台'}`
 })
 
 export function resetDynamicRoutes() {

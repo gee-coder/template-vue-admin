@@ -1,8 +1,8 @@
 <template>
   <section class="page-shell">
     <header>
-      <h2 class="page-title">Users</h2>
-      <p class="page-subtitle">Manage operators, statuses, and role bindings.</p>
+      <h2 class="page-title">用户管理</h2>
+      <p class="page-subtitle">管理后台账号、状态和角色绑定关系。</p>
     </header>
 
     <UserSearchBar v-model="query" @search="loadUsers" @create="openCreate" />
@@ -98,21 +98,20 @@ async function saveUser(payload: typeof form) {
     } else if (currentId.value) {
       await updateUserApi(currentId.value, payload)
     }
-    ElMessage.success('Saved')
+    ElMessage.success('保存成功')
     drawerVisible.value = false
     await loadUsers()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : 'Save failed')
+    ElMessage.error(error instanceof Error ? error.message : '保存失败')
   } finally {
     saving.value = false
   }
 }
 
 async function removeUser(user: User) {
-  await ElMessageBox.confirm(`Delete user ${user.username}?`, 'Confirm', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除用户“${user.username}”吗？`, '删除确认', { type: 'warning' })
   await deleteUserApi(user.id)
-  ElMessage.success('Deleted')
+  ElMessage.success('删除成功')
   await loadUsers()
 }
 </script>
-

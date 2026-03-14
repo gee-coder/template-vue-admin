@@ -2,20 +2,20 @@
   <div class="login-shell">
     <section class="login-panel surface-card">
       <div class="login-copy">
-        <span class="eyebrow">Nex Admin Template</span>
-        <h1>Run your startup stack from one control room.</h1>
-        <p>JWT auth, refresh token rotation, RBAC routing, and system CRUD are ready to connect.</p>
+        <span class="eyebrow">Nex 管理台模板</span>
+        <h1>用一个后台把创业项目的技术底座跑起来。</h1>
+        <p>统一鉴权、刷新令牌、权限路由和系统管理能力已经就绪，接上业务就能继续往前走。</p>
       </div>
 
       <el-form :model="form" class="login-form" @submit.prevent="submit">
-        <el-form-item label="Username">
+        <el-form-item label="用户名">
           <el-input v-model="form.username" placeholder="admin" />
         </el-form-item>
-        <el-form-item label="Password">
+        <el-form-item label="密码">
           <el-input v-model="form.password" show-password placeholder="Admin123!" />
         </el-form-item>
         <el-button :loading="loading" type="primary" class="login-action" @click="submit">
-          Sign in
+          登录
         </el-button>
       </el-form>
     </section>
@@ -45,10 +45,10 @@ async function submit() {
   try {
     await authStore.login(form)
     permissionStore.reset()
-    ElMessage.success('Login succeeded')
+    ElMessage.success('登录成功')
     await router.push(String(route.query.redirect || '/dashboard'))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : 'Login failed')
+    ElMessage.error(error instanceof Error ? error.message : '登录失败')
   } finally {
     loading.value = false
   }
@@ -121,4 +121,3 @@ async function submit() {
   }
 }
 </style>
-

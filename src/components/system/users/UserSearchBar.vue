@@ -1,19 +1,19 @@
 <template>
   <div class="surface-card search-bar">
     <el-form :inline="true" :model="form">
-      <el-form-item label="Keyword">
-        <el-input v-model="form.keyword" placeholder="username or email" clearable />
+      <el-form-item label="关键词">
+        <el-input v-model="form.keyword" placeholder="用户名或邮箱" clearable />
       </el-form-item>
-      <el-form-item label="Status">
-        <el-select v-model="form.status" placeholder="all" clearable style="width: 140px">
-          <el-option label="Enabled" value="enabled" />
-          <el-option label="Disabled" value="disabled" />
+      <el-form-item label="状态">
+        <el-select v-model="form.status" placeholder="全部" clearable style="width: 140px">
+          <el-option label="启用" value="enabled" />
+          <el-option label="停用" value="disabled" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="$emit('search', { ...form })">Search</el-button>
-        <el-button @click="reset">Reset</el-button>
-        <el-button type="success" @click="$emit('create')">New user</el-button>
+        <el-button type="primary" @click="$emit('search', { ...form })">查询</el-button>
+        <el-button @click="reset">重置</el-button>
+        <el-button type="success" @click="$emit('create')">新建用户</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -56,4 +56,3 @@ function reset() {
   padding: 16px 18px 4px;
 }
 </style>
-
