@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { loginApi, logoutApi, profileApi } from '@/api/auth'
-import type { ProfileUser } from '@/types/auth'
+import { loginApi, logoutApi, profileApi, registerApi } from '@/api/auth'
+import type { LoginPayload, ProfileUser, RegisterPayload } from '@/types/auth'
 import {
   clearSessionStorage,
   getAccessToken,
@@ -22,8 +22,13 @@ export const useAuthStore = defineStore('auth', {
     permissions: (state) => state.profile?.permissions || [],
   },
   actions: {
-    async login(payload: { username: string; password: string }) {
+    async login(payload: LoginPayload) {
       const result = await loginApi(payload)
+      this.applyTokenPayload(result)
+      return result
+    },
+    async register(payload: RegisterPayload) {
+      const result = await registerApi(payload)
       this.applyTokenPayload(result)
       return result
     },
@@ -55,4 +60,3 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 })
-

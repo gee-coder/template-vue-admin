@@ -1,8 +1,16 @@
 import request from './request'
-import type { ProfileUser, TokenPayload } from '@/types/auth'
+import type { AuthOptions, LoginPayload, ProfileUser, RegisterPayload, TokenPayload } from '@/types/auth'
 
-export function loginApi(payload: { username: string; password: string }) {
+export function getAuthOptionsApi() {
+  return request.get<AuthOptions>('/auth/options')
+}
+
+export function loginApi(payload: LoginPayload) {
   return request.post<TokenPayload>('/auth/login', payload)
+}
+
+export function registerApi(payload: RegisterPayload) {
+  return request.post<TokenPayload>('/auth/register', payload)
 }
 
 export function profileApi() {
@@ -16,4 +24,3 @@ export function refreshTokenApi(refreshToken: string) {
 export function logoutApi(refreshToken: string) {
   return request.post<{ success: boolean }>('/auth/logout', { refreshToken })
 }
-
