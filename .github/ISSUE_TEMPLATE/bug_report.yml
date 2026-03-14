@@ -1,0 +1,47 @@
+name: Bug 报告
+description: 报告后台模板中的页面、权限、构建或交互问题
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题描述
+      placeholder: 你在什么页面或流程中遇到了什么问题？
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 进入哪个页面
+        2. 点击什么操作
+        3. 接口返回什么
+        4. 最终出现什么异常
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      placeholder: |
+        OS:
+        Node:
+        npm:
+        浏览器:
+        后端版本:
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: 截图或补充信息
+

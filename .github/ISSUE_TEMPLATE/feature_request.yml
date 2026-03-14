@@ -1,0 +1,29 @@
+name: Feature 功能建议
+description: 提出后台模板能力增强、页面优化或治理建议
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: target
+    attributes:
+      label: 背景与目标
+      description: 你希望补什么能力，解决什么问题？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 影响范围
+      placeholder: 例如路由、权限、页面布局、构建配置等
+  - type: textarea
+    id: extra
+    attributes:
+      label: 补充信息
+
