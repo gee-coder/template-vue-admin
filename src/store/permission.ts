@@ -25,9 +25,24 @@ export const usePermissionStore = defineStore('permission', {
   }),
   actions: {
     async loadMenus(permissions: string[]) {
-      const menuTree = await fetchMenusApi()
-      this.menus = filterMenus(menuTree, permissions)
-      this.dynamicRoutes = buildDynamicRoutes(this.menus)
+      if (!permissions.length) {
+        this.menus = []
+        this.dynamicRoutes = []
+        this.loaded = true
+        return this.dynamicRoutes
+      }
+
+      try {
+        const menuTree = await fetchMenusApi()
+        this.menus = filterMenus(menuTree, permissions)
+        this.dynamicRoutes = buildDynamicRoutes(this.menus)
+      } catch {
+        // Allow low-permission users to access base routes like dashboard/profile
+        // even when they cannot read the full system menu tree.
+        this.menus = []
+        this.dynamicRoutes = []
+      }
+
       this.loaded = true
       return this.dynamicRoutes
     },
@@ -38,4 +53,3 @@ export const usePermissionStore = defineStore('permission', {
     },
   },
 })
-
