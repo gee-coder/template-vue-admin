@@ -5,12 +5,19 @@
 ![Vite](https://img.shields.io/badge/Vite-5.4.21-646CFF?logo=vite&logoColor=white)
 ![Element Plus](https://img.shields.io/badge/Element_Plus-2.4.4-409EFF)
 ![Pinia](https://img.shields.io/badge/Pinia-2.1.7-F7C948)
+![License](https://img.shields.io/badge/License-MIT-111827)
 
 一套基于 Vue 3 的管理后台模板，内置登录、JWT 刷新、动态菜单、RBAC 权限控制、仪表盘、用户管理、角色管理、菜单管理，可直接作为后台管理系统基座继续扩展。
 
 ## 预览占位图
 
 ![Admin Preview](./.github/assets/preview.svg)
+
+## 治理文档
+
+- [LICENSE](./LICENSE)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md)
 
 ## 1. 项目定位
 
@@ -203,4 +210,3 @@ Nginx 示例思路：
 - 继续按 `src/views/<module>` 增加业务页面
 - 把复杂逻辑拆到组合式函数或子组件
 - 与后端新增模块时，始终先在 `src/api` 中定义请求层
-
