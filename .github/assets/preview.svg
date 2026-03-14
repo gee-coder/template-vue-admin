@@ -1,0 +1,29 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="720" rx="36" fill="#F3F6FB"/>
+  <rect x="32" y="32" width="1216" height="656" rx="28" fill="url(#bg)"/>
+  <rect x="84" y="84" width="270" height="552" rx="24" fill="#0F172A" fill-opacity="0.88"/>
+  <rect x="390" y="84" width="806" height="88" rx="24" fill="#FFFFFF" fill-opacity="0.94"/>
+  <rect x="390" y="204" width="250" height="160" rx="24" fill="#34D399" fill-opacity="0.2"/>
+  <rect x="668" y="204" width="250" height="160" rx="24" fill="#60A5FA" fill-opacity="0.2"/>
+  <rect x="946" y="204" width="250" height="160" rx="24" fill="#FBBF24" fill-opacity="0.22"/>
+  <rect x="390" y="396" width="806" height="240" rx="24" fill="#FFFFFF" fill-opacity="0.94"/>
+  <text x="84" y="68" fill="#0F172A" font-size="28" font-family="Segoe UI, Arial, sans-serif">template-vue-admin</text>
+  <text x="116" y="140" fill="#FFFFFF" font-size="22" font-family="Segoe UI, Arial, sans-serif">Navigation</text>
+  <text x="116" y="190" fill="#CBD5E1" font-size="20" font-family="Segoe UI, Arial, sans-serif">Dashboard</text>
+  <text x="116" y="228" fill="#CBD5E1" font-size="20" font-family="Segoe UI, Arial, sans-serif">Users</text>
+  <text x="116" y="266" fill="#CBD5E1" font-size="20" font-family="Segoe UI, Arial, sans-serif">Roles</text>
+  <text x="116" y="304" fill="#CBD5E1" font-size="20" font-family="Segoe UI, Arial, sans-serif">Menus</text>
+  <text x="432" y="138" fill="#0F172A" font-size="32" font-family="Segoe UI, Arial, sans-serif">Admin Console Preview</text>
+  <text x="432" y="292" fill="#0F172A" font-size="24" font-family="Segoe UI, Arial, sans-serif">Dashboard</text>
+  <text x="710" y="292" fill="#0F172A" font-size="24" font-family="Segoe UI, Arial, sans-serif">Permissions</text>
+  <text x="988" y="292" fill="#0F172A" font-size="24" font-family="Segoe UI, Arial, sans-serif">System CRUD</text>
+  <text x="432" y="452" fill="#0F172A" font-size="28" font-family="Segoe UI, Arial, sans-serif">Ready for role-based operations</text>
+  <text x="432" y="494" fill="#475569" font-size="18" font-family="Segoe UI, Arial, sans-serif">JWT refresh, dynamic routes, and page-level modular splitting are in place.</text>
+  <defs>
+    <linearGradient id="bg" x1="32" y1="32" x2="1248" y2="688" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E2E8F0"/>
+      <stop offset="1" stop-color="#CBD5E1"/>
+    </linearGradient>
+  </defs>
+</svg>
+
