@@ -3,14 +3,14 @@
     <header class="page-head">
       <div>
         <h2 class="page-title">菜单管理</h2>
-        <p class="page-subtitle">维护菜单树、路由组件和权限节点之间的映射关系。</p>
+        <p class="page-subtitle">维护菜单树、路由组件、图标与权限节点之间的映射关系。</p>
       </div>
-      <el-button type="success" @click="openCreate">新建菜单</el-button>
+      <el-button type="primary" @click="openCreate">新建菜单</el-button>
     </header>
 
-    <div class="surface-card panel">
+    <div class="surface-card table-panel">
       <el-table :data="menus" row-key="id" stripe default-expand-all>
-        <el-table-column prop="title" label="标题" min-width="160" />
+        <el-table-column prop="title" label="标题" min-width="180" />
         <el-table-column prop="name" label="名称" min-width="140" />
         <el-table-column prop="type" label="类型" min-width="120">
           <template #default="{ row }">
@@ -123,15 +123,3 @@ async function removeMenu(id: number) {
   await loadMenus()
 }
 </script>
-
-<style scoped>
-.page-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.panel {
-  padding: 12px;
-}
-</style>

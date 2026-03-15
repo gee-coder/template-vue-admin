@@ -3,13 +3,18 @@
     <div class="brand">
       <div class="brand-mark">N</div>
       <div>
-        <strong>Nex 管理台</strong>
-        <p>创业项目运营后台</p>
+        <strong>Nex Console</strong>
+        <p>运营模板管理后台</p>
       </div>
     </div>
 
+    <div class="sidebar-caption">
+      <span>主导航</span>
+      <strong>统一权限与配置中心</strong>
+    </div>
+
     <el-scrollbar>
-      <el-menu :default-active="route.path" class="sidebar-menu" router>
+      <el-menu :default-active="route.path" class="sidebar-menu" router unique-opened>
         <el-menu-item index="/dashboard">
           <el-icon><House /></el-icon>
           <span>工作台</span>
@@ -29,6 +34,11 @@
         </el-menu-item>
       </el-menu>
     </el-scrollbar>
+
+    <div class="sidebar-footer">
+      <span>模板状态</span>
+      <strong>已接入统一登录、认证设置、头像库</strong>
+    </div>
   </aside>
 </template>
 
@@ -48,16 +58,16 @@ const systemMenus = computed(() =>
 
 <style scoped>
 .sidebar {
-  margin: 18px;
-  padding: 16px;
   display: grid;
-  gap: 18px;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 16px;
+  padding: 18px 16px;
 }
 
 .brand {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 12px;
 }
 
 .brand-mark {
@@ -66,25 +76,42 @@ const systemMenus = computed(() =>
   display: grid;
   place-items: center;
   border-radius: 14px;
-  color: white;
+  color: #fff;
   font-weight: 700;
-  background: linear-gradient(135deg, #0f766e, #0b5d91);
+  background: linear-gradient(135deg, #3f6fd9, #274da5);
+  box-shadow: 0 8px 20px rgba(63, 111, 217, 0.24);
 }
 
-.brand p {
+.brand p,
+.sidebar-caption span,
+.sidebar-footer span {
   margin: 4px 0 0;
-  color: #64748b;
+  color: #7a8795;
   font-size: 12px;
 }
 
+.sidebar-caption,
+.sidebar-footer {
+  padding: 12px 14px;
+  border: 1px solid #edf1f6;
+  border-radius: 14px;
+  background: #fafcff;
+}
+
+.sidebar-caption strong,
+.sidebar-footer strong {
+  display: block;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
 .sidebar-menu {
-  border-right: none;
   background: transparent;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 980px) {
   .sidebar {
-    margin: 12px;
+    grid-template-rows: auto auto auto auto;
   }
 }
 </style>

@@ -12,11 +12,21 @@
           style="width: 100%"
         />
       </el-form-item>
-      <el-form-item label="菜单名称"><el-input v-model="localForm.name" /></el-form-item>
-      <el-form-item label="显示标题"><el-input v-model="localForm.title" /></el-form-item>
-      <el-form-item label="路由路径"><el-input v-model="localForm.path" /></el-form-item>
-      <el-form-item label="组件路径"><el-input v-model="localForm.component" /></el-form-item>
-      <el-form-item label="权限标识"><el-input v-model="localForm.permission" /></el-form-item>
+      <el-form-item label="菜单名称">
+        <el-input v-model="localForm.name" />
+      </el-form-item>
+      <el-form-item label="显示标题">
+        <el-input v-model="localForm.title" />
+      </el-form-item>
+      <el-form-item label="路由路径">
+        <el-input v-model="localForm.path" />
+      </el-form-item>
+      <el-form-item label="组件路径">
+        <el-input v-model="localForm.component" />
+      </el-form-item>
+      <el-form-item label="权限标识">
+        <el-input v-model="localForm.permission" />
+      </el-form-item>
       <el-form-item label="菜单类型">
         <el-radio-group v-model="localForm.type">
           <el-radio label="directory">目录</el-radio>

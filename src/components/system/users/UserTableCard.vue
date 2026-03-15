@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-card table-card">
+  <div class="surface-card table-panel">
     <el-table :data="items" stripe>
       <el-table-column label="用户" min-width="220">
         <template #default="{ row }">
@@ -21,7 +21,7 @@
       </el-table-column>
       <el-table-column prop="status" label="状态" min-width="120">
         <template #default="{ row }">
-          <el-tag :type="row.status === 'enabled' ? 'success' : 'info'">
+          <el-tag :type="row.status === 'enabled' ? 'success' : 'info'" effect="plain">
             {{ row.status === 'enabled' ? '启用' : '停用' }}
           </el-tag>
         </template>
@@ -49,10 +49,6 @@ defineEmits<{
 </script>
 
 <style scoped>
-.table-card {
-  padding: 12px 12px 4px;
-}
-
 .user-cell {
   display: flex;
   align-items: center;

@@ -4,7 +4,7 @@
       <el-form-item label="角色名称">
         <el-input v-model="localForm.name" />
       </el-form-item>
-      <el-form-item label="角色编码" v-if="mode === 'create'">
+      <el-form-item v-if="mode === 'create'" label="角色编码">
         <el-input v-model="localForm.code" />
       </el-form-item>
       <el-form-item label="备注">

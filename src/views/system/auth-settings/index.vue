@@ -3,57 +3,53 @@
     <header class="page-head">
       <div>
         <h2 class="page-title">认证设置</h2>
-        <p class="page-subtitle">控制后台、小程序等客户端是否开放邮箱/手机号登录与注册。</p>
+        <p class="page-subtitle">控制后台与其他客户端是否开放邮箱、手机号登录与注册，适配不同产品形态。</p>
       </div>
       <el-button type="primary" :loading="saving" @click="save">保存设置</el-button>
     </header>
 
-    <div class="surface-card panel">
-      <div class="group">
+    <div class="panel-grid">
+      <article class="surface-card panel-section">
         <h3>登录方式</h3>
-        <el-alert type="info" :closable="false" show-icon>
-          用户名登录固定开启，邮箱和手机号登录可按产品需要动态开关。
-        </el-alert>
-        <div class="switch-list">
-          <div class="switch-row">
+        <p class="muted">用户名登录固定开启，邮箱和手机号登录支持按业务需求动态开关。</p>
+        <div class="setting-list">
+          <div class="setting-item">
             <div>
               <strong>邮箱登录</strong>
-              <p>允许用户用邮箱地址直接登录。</p>
+              <p class="muted">允许用户通过邮箱地址直接登录。</p>
             </div>
             <el-switch v-model="form.enableEmailLogin" />
           </div>
-          <div class="switch-row">
+          <div class="setting-item">
             <div>
               <strong>手机号登录</strong>
-              <p>允许用户用手机号直接登录。</p>
+              <p class="muted">允许用户通过手机号直接登录。</p>
             </div>
             <el-switch v-model="form.enablePhoneLogin" />
           </div>
         </div>
-      </div>
+      </article>
 
-      <div class="group">
+      <article class="surface-card panel-section">
         <h3>注册方式</h3>
-        <el-alert type="warning" :closable="false" show-icon>
-          如果关闭某种登录方式，对应注册也会自动关闭，避免用户注册后无法登录。
-        </el-alert>
-        <div class="switch-list">
-          <div class="switch-row">
+        <p class="muted">关闭某种登录方式后，对应注册方式也会自动关闭，避免注册后无法登录。</p>
+        <div class="setting-list">
+          <div class="setting-item">
             <div>
               <strong>邮箱注册</strong>
-              <p>允许新用户通过邮箱注册账号。</p>
+              <p class="muted">允许新用户通过邮箱注册账号。</p>
             </div>
             <el-switch v-model="form.enableEmailRegistration" :disabled="!form.enableEmailLogin" />
           </div>
-          <div class="switch-row">
+          <div class="setting-item">
             <div>
               <strong>手机号注册</strong>
-              <p>允许新用户通过手机号注册账号。</p>
+              <p class="muted">允许新用户通过手机号注册账号。</p>
             </div>
             <el-switch v-model="form.enablePhoneRegistration" :disabled="!form.enablePhoneLogin" />
           </div>
         </div>
-      </div>
+      </article>
     </div>
   </section>
 </template>
@@ -74,17 +70,19 @@ const form = reactive<AuthOptions>({
   enablePhoneRegistration: true,
 })
 
-watch(() => form.enableEmailLogin, (enabled) => {
-  if (!enabled) {
-    form.enableEmailRegistration = false
-  }
-})
+watch(
+  () => form.enableEmailLogin,
+  (enabled) => {
+    if (!enabled) form.enableEmailRegistration = false
+  },
+)
 
-watch(() => form.enablePhoneLogin, (enabled) => {
-  if (!enabled) {
-    form.enablePhoneRegistration = false
-  }
-})
+watch(
+  () => form.enablePhoneLogin,
+  (enabled) => {
+    if (!enabled) form.enablePhoneRegistration = false
+  },
+)
 
 onMounted(load)
 
@@ -108,44 +106,24 @@ async function save() {
 </script>
 
 <style scoped>
-.page-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.panel {
-  padding: 20px;
+.setting-list {
   display: grid;
-  gap: 24px;
+  gap: 14px;
+  margin-top: 16px;
 }
 
-.group {
-  display: grid;
-  gap: 16px;
-}
-
-.group h3 {
-  margin: 0;
-}
-
-.switch-list {
-  display: grid;
-  gap: 16px;
-}
-
-.switch-row {
+.setting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  padding: 18px 20px;
+  padding: 16px 18px;
   border-radius: 16px;
-  background: #f7fafc;
+  border: 1px solid #ebf0f6;
+  background: #fafcff;
 }
 
-.switch-row p {
+.setting-item p {
   margin: 6px 0 0;
-  color: #64748b;
 }
 </style>

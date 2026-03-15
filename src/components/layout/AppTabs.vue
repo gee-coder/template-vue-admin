@@ -1,17 +1,14 @@
 <template>
   <div class="tabs">
-    <el-tag
+    <div
       v-for="tab in appStore.tabs"
       :key="tab.path"
-      :type="tab.path === route.fullPath ? 'success' : 'info'"
-      class="tab-chip"
-      effect="plain"
-      closable
-      @close="close(tab.path)"
+      :class="['tab-chip', { active: tab.path === route.fullPath }]"
       @click="router.push(tab.path)"
     >
-      {{ tab.title }}
-    </el-tag>
+      <span>{{ tab.title }}</span>
+      <button type="button" class="tab-close" @click.stop="close(tab.path)">×</button>
+    </div>
   </div>
 </template>
 
@@ -39,7 +36,31 @@ async function close(path: string) {
 }
 
 .tab-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 8px 12px;
+  border: 1px solid #e5ebf3;
+  border-radius: 999px;
+  background: #f9fbfe;
+  color: #617081;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.tab-chip.active {
+  border-color: rgba(63, 111, 217, 0.22);
+  background: #edf3ff;
+  color: #315fc7;
+}
+
+.tab-close {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
 }
 </style>
-

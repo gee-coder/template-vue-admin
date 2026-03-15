@@ -6,6 +6,7 @@ import { Document, Grid, House, Lock, Menu as MenuIcon, Setting, User } from '@e
 const componentMap: Record<string, () => Promise<unknown>> = {
   'views/dashboard/index.vue': () => import('@/views/dashboard/index.vue'),
   'views/system/auth-settings/index.vue': () => import('@/views/system/auth-settings/index.vue'),
+  'views/system/login-audits/index.vue': () => import('@/views/system/login-audits/index.vue'),
   'views/system/users/index.vue': () => import('@/views/system/users/index.vue'),
   'views/system/roles/index.vue': () => import('@/views/system/roles/index.vue'),
   'views/system/menus/index.vue': () => import('@/views/system/menus/index.vue'),

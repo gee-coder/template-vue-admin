@@ -1,5 +1,5 @@
 <template>
-  <div class="layout">
+  <div class="layout-shell">
     <AppSidebar />
     <section class="layout-main">
       <AppHeader />
@@ -22,16 +22,19 @@ import AppTabs from '@/components/layout/AppTabs.vue'
 </script>
 
 <style scoped>
-.layout {
+.layout-shell {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 248px minmax(0, 1fr);
   min-height: 100vh;
+  gap: 18px;
+  padding: 18px;
 }
 
 .layout-main {
+  min-width: 0;
   display: grid;
+  grid-template-rows: auto auto 1fr;
   gap: 14px;
-  padding: 18px 18px 22px 0;
 }
 
 .layout-subnav {
@@ -44,14 +47,10 @@ import AppTabs from '@/components/layout/AppTabs.vue'
   min-height: 0;
 }
 
-@media (max-width: 960px) {
-  .layout {
+@media (max-width: 980px) {
+  .layout-shell {
     grid-template-columns: 1fr;
-  }
-
-  .layout-main {
     padding: 12px;
   }
 }
 </style>
-

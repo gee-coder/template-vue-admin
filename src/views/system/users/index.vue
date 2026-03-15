@@ -1,8 +1,10 @@
 <template>
   <section class="page-shell">
-    <header>
-      <h2 class="page-title">用户管理</h2>
-      <p class="page-subtitle">管理后台账号、头像、状态和角色绑定关系。</p>
+    <header class="page-head">
+      <div>
+        <h2 class="page-title">用户管理</h2>
+        <p class="page-subtitle">管理后台账号、头像、状态和角色绑定关系。</p>
+      </div>
     </header>
 
     <UserSearchBar v-model="query" @search="loadUsers" @create="openCreate" />

@@ -1,8 +1,8 @@
 <template>
-  <div class="surface-card search-bar">
-    <el-form :inline="true" :model="form">
+  <div class="surface-card toolbar-card">
+    <el-form :inline="true" :model="form" class="toolbar-form">
       <el-form-item label="关键词">
-        <el-input v-model="form.keyword" placeholder="用户名或邮箱" clearable />
+        <el-input v-model="form.keyword" placeholder="用户名、昵称或邮箱" clearable />
       </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="form.status" placeholder="全部" clearable style="width: 140px">
@@ -13,7 +13,7 @@
       <el-form-item>
         <el-button type="primary" @click="$emit('search', { ...form })">查询</el-button>
         <el-button @click="reset">重置</el-button>
-        <el-button type="success" @click="$emit('create')">新建用户</el-button>
+        <el-button type="primary" plain @click="$emit('create')">新建用户</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -50,9 +50,3 @@ function reset() {
   emit('search', { keyword: '', status: '' })
 }
 </script>
-
-<style scoped>
-.search-bar {
-  padding: 16px 18px 4px;
-}
-</style>

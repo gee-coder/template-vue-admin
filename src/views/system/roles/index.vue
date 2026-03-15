@@ -3,24 +3,24 @@
     <header class="page-head">
       <div>
         <h2 class="page-title">角色管理</h2>
-        <p class="page-subtitle">管理角色权限包，并为不同岗位绑定菜单能力。</p>
+        <p class="page-subtitle">维护岗位角色、启停状态和菜单权限绑定关系。</p>
       </div>
-      <el-button type="success" @click="openCreate">新建角色</el-button>
+      <el-button type="primary" @click="openCreate">新建角色</el-button>
     </header>
 
-    <div class="surface-card panel">
+    <div class="surface-card table-panel">
       <el-table :data="roles" stripe>
-        <el-table-column prop="name" label="角色名称" min-width="140" />
-        <el-table-column prop="code" label="角色编码" min-width="140" />
+        <el-table-column prop="name" label="角色名称" min-width="160" />
+        <el-table-column prop="code" label="角色编码" min-width="160" />
         <el-table-column prop="status" label="状态" min-width="120">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'enabled' ? 'success' : 'info'">
+            <el-tag :type="row.status === 'enabled' ? 'success' : 'info'" effect="plain">
               {{ row.status === 'enabled' ? '启用' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="remark" label="备注" min-width="200" />
-        <el-table-column label="关联菜单" min-width="260">
+        <el-table-column prop="remark" label="备注" min-width="220" />
+        <el-table-column label="关联菜单" min-width="280">
           <template #default="{ row }">
             <el-tag v-for="menu in row.menus" :key="menu.id" effect="plain">{{ menu.title }}</el-tag>
           </template>
@@ -119,15 +119,3 @@ async function removeRole(id: number) {
   await loadRoles()
 }
 </script>
-
-<style scoped>
-.page-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.panel {
-  padding: 12px;
-}
-</style>

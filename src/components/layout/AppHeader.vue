@@ -1,12 +1,22 @@
 <template>
   <header class="surface-card header">
-    <div>
-      <h1>运营总览</h1>
-      <p>在一个工作台里查看账号、权限和系统运行情况。</p>
+    <div class="header-meta">
+      <div class="meta-icon">控制台</div>
+      <div>
+        <strong>{{ currentTitle }}</strong>
+        <p>{{ currentSubtitle }}</p>
+      </div>
     </div>
 
     <div class="header-actions">
-      <el-tag type="success" effect="plain">统一鉴权 + 权限控制</el-tag>
+      <div class="action-chip">
+        <span>环境</span>
+        <strong>DEV</strong>
+      </div>
+      <div class="action-chip">
+        <span>审计</span>
+        <strong>已开启</strong>
+      </div>
       <el-dropdown trigger="click" @command="onCommand">
         <div class="user-chip">
           <el-avatar :src="avatarUrl">{{ initials }}</el-avatar>
@@ -28,7 +38,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { resolveAvatarUrl } from '@/constants/avatar'
 import { useAuthStore } from '@/store/auth'
 import { usePermissionStore } from '@/store/permission'
@@ -36,10 +46,23 @@ import { useAppStore } from '@/store/app'
 import { resetDynamicRoutes } from '@/router'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 const appStore = useAppStore()
 
+const subtitleMap: Record<string, string> = {
+  工作台: '查看系统状态、模板能力和各模块准备情况。',
+  用户管理: '管理账号、头像、角色和登录能力。',
+  角色管理: '为不同岗位绑定菜单能力与访问边界。',
+  菜单管理: '维护菜单树、路由组件与权限节点映射。',
+  认证设置: '按产品需求控制邮箱和手机号登录注册。',
+  登录审计: '追踪登录成功、失败与客户端来源。',
+  个人中心: '维护当前账号资料与头像。',
+}
+
+const currentTitle = computed(() => String(route.meta.title || 'Nex Console'))
+const currentSubtitle = computed(() => subtitleMap[currentTitle.value] || '统一后台模板与权限中心。')
 const initials = computed(() => (authStore.profile?.nickname || '管理').slice(0, 2).toUpperCase())
 const avatarUrl = computed(() => resolveAvatarUrl(authStore.profile?.avatar))
 
@@ -62,24 +85,50 @@ async function onCommand(command: string) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 18px 22px;
+  gap: 18px;
+  padding: 16px 18px;
 }
 
-.header h1 {
-  margin: 0;
-  font-size: 24px;
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.header p {
-  margin: 6px 0 0;
-  color: #64748b;
+.meta-icon {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #eef4ff;
+  color: #3f6fd9;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.header-meta p,
+.user-chip p,
+.action-chip span {
+  margin: 4px 0 0;
+  color: #7c8a98;
+  font-size: 12px;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.action-chip {
+  min-width: 88px;
+  padding: 9px 12px;
+  border: 1px solid #edf1f6;
+  border-radius: 12px;
+  background: #fafcff;
+}
+
+.action-chip strong {
+  display: block;
+  margin-top: 2px;
 }
 
 .user-chip {
@@ -89,15 +138,15 @@ async function onCommand(command: string) {
   cursor: pointer;
 }
 
-.user-chip p {
-  margin: 2px 0 0;
-  font-size: 12px;
-}
-
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
 }
 </style>
