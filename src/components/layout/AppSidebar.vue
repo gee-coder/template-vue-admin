@@ -11,8 +11,15 @@
       </div>
     </div>
 
-    <el-scrollbar>
-      <el-menu :default-active="route.path" :collapse="collapsed" :collapse-transition="false" class="sidebar-menu" router unique-opened>
+    <el-scrollbar class="sidebar-scroll">
+      <el-menu
+        :default-active="route.path"
+        :collapse="collapsed"
+        :collapse-transition="false"
+        class="sidebar-menu"
+        router
+        unique-opened
+      >
         <el-menu-item index="/dashboard">
           <el-icon><House /></el-icon>
           <span>工作台</span>
@@ -32,14 +39,22 @@
         </el-menu-item>
       </el-menu>
     </el-scrollbar>
+
+    <div class="sidebar-footer">
+      <el-button class="sidebar-toggle" text @click="appStore.toggleSidebar()">
+        <el-icon><component :is="toggleIcon" /></el-icon>
+        <span v-if="!collapsed">{{ toggleLabel }}</span>
+      </el-button>
+    </div>
   </aside>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { House, Setting, User } from '@element-plus/icons-vue'
+import { CloseBold, Expand, Fold, House, Setting, User } from '@element-plus/icons-vue'
 import { branding, getBrandFallbackText } from '@/config/branding'
+import { useAppStore } from '@/store/app'
 import { usePermissionStore } from '@/store/permission'
 
 defineProps<{
@@ -47,22 +62,31 @@ defineProps<{
 }>()
 
 const route = useRoute()
+const appStore = useAppStore()
 const permissionStore = usePermissionStore()
 const brand = branding
 const brandFallbackText = computed(() => getBrandFallbackText(brand.consoleName))
-
-const systemMenus = computed(() =>
-  permissionStore.menus.find((item) => item.path === '/system')?.children?.filter((item) => item.type !== 'button') || [],
+const systemMenus = computed(
+  () => permissionStore.menus.find((item) => item.path === '/system')?.children?.filter((item) => item.type !== 'button') || [],
 )
+const toggleIcon = computed(() => {
+  if (appStore.isMobileViewport) return CloseBold
+  return appStore.sidebarCollapsed ? Expand : Fold
+})
+const toggleLabel = computed(() => {
+  if (appStore.isMobileViewport) return '收起导航'
+  return appStore.sidebarCollapsed ? '展开导航' : '收起导航'
+})
 </script>
 
 <style scoped>
 .sidebar {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   gap: 16px;
-  padding: 18px 16px;
-  min-height: calc(100vh - 36px);
+  padding: 18px 16px 14px;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -75,6 +99,10 @@ const systemMenus = computed(() =>
 
 .brand-copy {
   min-width: 0;
+}
+
+.brand-copy strong {
+  display: block;
 }
 
 .brand-mark-shell {
@@ -107,8 +135,27 @@ const systemMenus = computed(() =>
   font-size: 12px;
 }
 
+.sidebar-scroll {
+  min-height: 0;
+  height: 100%;
+}
+
 .sidebar-menu {
   background: transparent;
+}
+
+.sidebar-footer {
+  padding-top: 14px;
+  border-top: 1px solid #edf2f7;
+}
+
+.sidebar-toggle {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #64748b;
 }
 
 .sidebar.collapsed {
@@ -119,8 +166,17 @@ const systemMenus = computed(() =>
   justify-content: center;
 }
 
+.sidebar.collapsed .sidebar-toggle {
+  justify-content: center;
+  padding-inline: 0;
+}
+
 .sidebar :deep(.el-menu-item.is-active) {
   box-shadow: inset 0 0 0 1px rgba(var(--app-primary-rgb), 0.08);
+}
+
+.sidebar :deep(.el-scrollbar__view) {
+  min-height: 100%;
 }
 
 @media (max-width: 1100px) {

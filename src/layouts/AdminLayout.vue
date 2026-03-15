@@ -15,13 +15,17 @@
     />
     <AppSidebar :collapsed="!appStore.isMobileViewport && appStore.sidebarCollapsed" />
     <section class="layout-main">
-      <AppHeader />
-      <div class="layout-subnav surface-card">
-        <AppBreadcrumb />
-        <AppTabs />
+      <div class="layout-top surface-card">
+        <AppHeader />
+        <div class="layout-subnav">
+          <AppBreadcrumb />
+          <AppTabs />
+        </div>
       </div>
       <main class="layout-content">
-        <router-view />
+        <div class="layout-content-inner">
+          <router-view />
+        </div>
       </main>
     </section>
   </div>
@@ -56,10 +60,12 @@ onBeforeUnmount(() => {
 .layout-shell {
   display: grid;
   grid-template-columns: var(--sidebar-width, 248px) minmax(0, 1fr);
-  min-height: 100vh;
+  height: 100vh;
   gap: 18px;
   padding: 18px;
   position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .layout-shell.is-collapsed {
@@ -69,18 +75,33 @@ onBeforeUnmount(() => {
 .layout-main {
   min-width: 0;
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto 1fr;
   gap: 14px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.layout-top {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px 14px;
 }
 
 .layout-subnav {
   display: grid;
   gap: 10px;
-  padding: 14px 18px;
+  padding-top: 12px;
+  border-top: 1px solid #edf2f7;
 }
 
 .layout-content {
   min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.layout-content-inner {
+  min-height: 100%;
 }
 
 .layout-mask {
@@ -110,6 +131,16 @@ onBeforeUnmount(() => {
 
   .layout-shell.is-mobile-open :deep(.sidebar) {
     transform: translateX(0);
+  }
+}
+
+@media (max-width: 720px) {
+  .layout-top {
+    padding: 14px;
+  }
+
+  .layout-subnav {
+    padding-top: 10px;
   }
 }
 </style>
