@@ -3,7 +3,9 @@
     <header class="page-head">
       <div>
         <h2 class="page-title">品牌设置</h2>
-        <p class="page-subtitle">保留最常用的品牌项：浏览器标题、控制台名称、副标题、图片素材和主题色，方便业务方直接配置。</p>
+        <p class="page-subtitle">
+          这里保留最常用的品牌项：浏览器标题、控制台名称、副标题、图片素材和主题颜色，方便业务方直接在后台替换。
+        </p>
       </div>
       <div class="page-actions">
         <el-button @click="resetToDefaults">恢复模板默认值</el-button>
@@ -19,17 +21,20 @@
             <el-input v-model="form.appTitle" placeholder="例如：Nex 管理台" />
           </el-form-item>
           <el-form-item label="控制台名称">
-            <el-input v-model="form.consoleName" placeholder="用于登录页和头部展示" />
+            <el-input v-model="form.consoleName" placeholder="用于登录页和顶部品牌位" />
           </el-form-item>
           <el-form-item label="副标题" class="form-span-2">
-            <el-input v-model="form.productTagline" placeholder="显示在侧边栏与登录页品牌位" />
+            <el-input v-model="form.productTagline" placeholder="显示在登录页和侧边栏的简短说明" />
           </el-form-item>
         </div>
       </article>
 
       <article class="surface-card panel-section">
         <h3>图片素材</h3>
-        <p class="muted">支持直接上传，也支持填写已有 CDN 地址。上传完成后会自动回填到输入框。</p>
+        <p class="muted">
+          支持直接上传，也支持填写已有图片地址。Logo 和 favicon 建议尽量保持识别度高，登录主视觉建议使用横向插图。
+        </p>
+
         <div class="asset-grid">
           <div class="asset-card">
             <div class="asset-preview asset-preview--logo">
@@ -39,27 +44,61 @@
             <el-form-item label="Logo 地址">
               <el-input v-model="form.logoMarkUrl" placeholder="可上传或粘贴图片地址" />
             </el-form-item>
+            <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP，建议优先使用透明底 SVG。</p>
             <div class="asset-actions">
-              <el-upload :show-file-list="false" accept="image/png,image/jpeg,image/webp,image/svg+xml" :http-request="uploadLogo">
-                <el-button :loading="uploadingKind === 'logoMark'">上传 Logo</el-button>
-              </el-upload>
-              <el-button @click="form.logoMarkUrl = ''">清空</el-button>
+              <input
+                ref="logoInputRef"
+                hidden
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                @change="handleAssetChange($event, 'logoMark')"
+              />
+              <el-button :loading="uploadingKind === 'logoMark'" @click="openUpload('logoMark')">上传 Logo</el-button>
+              <el-button @click="clearAsset('logoMark')">清空</el-button>
             </div>
           </div>
 
           <div class="asset-card">
+            <div class="asset-preview asset-preview--favicon">
+              <img v-if="faviconPreviewUrl" :src="faviconPreviewUrl" alt="" />
+              <span v-else>{{ logoFallbackText }}</span>
+            </div>
+            <el-form-item label="浏览器 favicon">
+              <el-input v-model="form.faviconUrl" placeholder="可上传或粘贴 favicon 地址" />
+            </el-form-item>
+            <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP、ICO，推荐使用 SVG 或 64 x 64 以上 PNG。</p>
+            <div class="asset-actions">
+              <input
+                ref="faviconInputRef"
+                hidden
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon,.ico"
+                @change="handleAssetChange($event, 'favicon')"
+              />
+              <el-button :loading="uploadingKind === 'favicon'" @click="openUpload('favicon')">上传 favicon</el-button>
+              <el-button @click="clearAsset('favicon')">清空</el-button>
+            </div>
+          </div>
+
+          <div class="asset-card asset-card--hero">
             <div class="asset-preview asset-preview--hero">
               <img v-if="heroPreviewUrl" :src="heroPreviewUrl" alt="" />
-              <span v-else>未设置主视觉图时，将仅展示背景渐变</span>
+              <span v-else>未设置登录主视觉图时，将仅展示主题渐变背景。</span>
             </div>
-            <el-form-item label="登录主视觉图地址">
-              <el-input v-model="form.loginHeroUrl" placeholder="建议上传横向插图" />
+            <el-form-item label="登录主视觉图">
+              <el-input v-model="form.loginHeroUrl" placeholder="建议上传横向插图或品牌海报" />
             </el-form-item>
+            <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP，建议使用横向大图。</p>
             <div class="asset-actions">
-              <el-upload :show-file-list="false" accept="image/png,image/jpeg,image/webp,image/svg+xml" :http-request="uploadHero">
-                <el-button :loading="uploadingKind === 'loginHero'">上传主视觉图</el-button>
-              </el-upload>
-              <el-button @click="form.loginHeroUrl = ''">清空</el-button>
+              <input
+                ref="heroInputRef"
+                hidden
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                @change="handleAssetChange($event, 'loginHero')"
+              />
+              <el-button :loading="uploadingKind === 'loginHero'" @click="openUpload('loginHero')">上传主视觉图</el-button>
+              <el-button @click="clearAsset('loginHero')">清空</el-button>
             </div>
           </div>
         </div>
@@ -83,7 +122,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, type UploadRequestOptions } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router'
 import { getSystemBrandingSettingsApi, updateSystemBrandingSettingsApi, uploadBrandingAssetApi } from '@/api/branding'
 import {
@@ -100,6 +139,10 @@ const saving = ref(false)
 const uploadingKind = ref<BrandingAssetKind | ''>('')
 const form = reactive<BrandingSettings>(createDefaultBrandingSettings())
 
+const logoInputRef = ref<HTMLInputElement>()
+const faviconInputRef = ref<HTMLInputElement>()
+const heroInputRef = ref<HTMLInputElement>()
+
 const colorFields: Array<{ key: keyof BrandingSettings['theme']; label: string }> = [
   { key: 'primary', label: '主色' },
   { key: 'primaryDark', label: '深主色' },
@@ -110,21 +153,29 @@ const colorFields: Array<{ key: keyof BrandingSettings['theme']; label: string }
 ]
 
 const logoPreviewUrl = computed(() => resolveBrandAssetUrl(form.logoMarkUrl))
+const faviconPreviewUrl = computed(() => resolveBrandAssetUrl(form.faviconUrl || form.logoMarkUrl))
 const heroPreviewUrl = computed(() => resolveBrandAssetUrl(form.loginHeroUrl))
 const logoFallbackText = computed(() => getBrandFallbackText(form.consoleName))
 
-onMounted(load)
+onMounted(() => {
+  void load()
+})
 
 async function load() {
-  const settings = await getSystemBrandingSettingsApi()
-  replaceForm(settings)
-  setBrandingSettings(settings, String(route.meta.title || ''))
+  try {
+    const settings = await getSystemBrandingSettingsApi()
+    replaceForm(settings)
+    setBrandingSettings(settings, String(route.meta.title || ''))
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '品牌设置加载失败')
+  }
 }
 
 function replaceForm(settings: BrandingSettings) {
-  Object.assign(form, createDefaultBrandingSettings(), settings, {
+  const defaults = createDefaultBrandingSettings()
+  Object.assign(form, defaults, settings, {
     theme: {
-      ...createDefaultBrandingSettings().theme,
+      ...defaults.theme,
       ...settings.theme,
     },
   })
@@ -157,30 +208,89 @@ async function save() {
   }
 }
 
-function createUploadHandler(kind: BrandingAssetKind, assign: (url: string) => void) {
-  return async (options: UploadRequestOptions) => {
-    uploadingKind.value = kind
-    try {
-      const result = await uploadBrandingAssetApi(options.file, kind)
-      assign(result.url)
-      options.onSuccess?.(result)
-      ElMessage.success('图片上传成功')
-    } catch (error) {
-      options.onError?.(error as Error)
-      ElMessage.error(error instanceof Error ? error.message : '上传失败')
-    } finally {
-      uploadingKind.value = ''
-    }
+function openUpload(kind: BrandingAssetKind) {
+  if (uploadingKind.value) {
+    return
+  }
+
+  if (kind === 'logoMark') {
+    logoInputRef.value?.click()
+    return
+  }
+  if (kind === 'favicon') {
+    faviconInputRef.value?.click()
+    return
+  }
+  heroInputRef.value?.click()
+}
+
+async function handleAssetChange(event: Event, kind: BrandingAssetKind) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) {
+    return
+  }
+
+  const validationError = validateAssetFile(file, kind)
+  if (validationError) {
+    ElMessage.warning(validationError)
+    input.value = ''
+    return
+  }
+
+  uploadingKind.value = kind
+  try {
+    const result = await uploadBrandingAssetApi(file, kind)
+    assignAssetUrl(kind, result.url)
+    ElMessage.success('图片上传成功')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '上传失败')
+  } finally {
+    input.value = ''
+    uploadingKind.value = ''
   }
 }
 
-const uploadLogo = createUploadHandler('logoMark', (url) => {
-  form.logoMarkUrl = url
-})
-
-const uploadHero = createUploadHandler('loginHero', (url) => {
+function assignAssetUrl(kind: BrandingAssetKind, url: string) {
+  if (kind === 'logoMark') {
+    form.logoMarkUrl = url
+    return
+  }
+  if (kind === 'favicon') {
+    form.faviconUrl = url
+    return
+  }
   form.loginHeroUrl = url
-})
+}
+
+function clearAsset(kind: BrandingAssetKind) {
+  if (kind === 'logoMark') {
+    form.logoMarkUrl = ''
+    return
+  }
+  if (kind === 'favicon') {
+    form.faviconUrl = ''
+    return
+  }
+  form.loginHeroUrl = ''
+}
+
+function validateAssetFile(file: File, kind: BrandingAssetKind) {
+  const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase()
+  const commonExtensions = ['.png', '.jpg', '.jpeg', '.svg', '.webp']
+  const allowedExtensions = kind === 'favicon' ? [...commonExtensions, '.ico'] : commonExtensions
+  if (!allowedExtensions.includes(extension)) {
+    return kind === 'favicon'
+      ? '请上传 PNG、JPG、JPEG、SVG、WEBP 或 ICO 格式的 favicon'
+      : '请上传 PNG、JPG、JPEG、SVG 或 WEBP 格式的图片'
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    return '单张图片不能超过 5MB'
+  }
+
+  return ''
+}
 </script>
 
 <style scoped>
@@ -216,8 +326,12 @@ const uploadHero = createUploadHandler('loginHero', (url) => {
   background: #fbfdff;
 }
 
+.asset-card--hero {
+  grid-column: 1 / -1;
+}
+
 .asset-preview {
-  min-height: 196px;
+  min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -231,7 +345,7 @@ const uploadHero = createUploadHandler('loginHero', (url) => {
 .asset-preview img {
   display: block;
   max-width: 100%;
-  max-height: 220px;
+  max-height: 240px;
   object-fit: contain;
 }
 
@@ -245,11 +359,28 @@ const uploadHero = createUploadHandler('loginHero', (url) => {
   min-height: 168px;
 }
 
-.asset-preview--logo span {
+.asset-preview--logo span,
+.asset-preview--favicon span {
   color: var(--app-primary);
   font-size: 20px;
   font-weight: 800;
   letter-spacing: 0.14em;
+}
+
+.asset-preview--favicon {
+  min-height: 132px;
+}
+
+.asset-preview--favicon img {
+  max-width: 72px;
+  max-height: 72px;
+}
+
+.asset-hint {
+  margin: 0;
+  color: #6f7f91;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .asset-actions {
@@ -280,13 +411,14 @@ const uploadHero = createUploadHandler('loginHero', (url) => {
   align-items: center;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1080px) {
   .asset-grid,
   .form-grid {
     grid-template-columns: 1fr;
   }
 
-  .form-span-2 {
+  .form-span-2,
+  .asset-card--hero {
     grid-column: auto;
   }
 }

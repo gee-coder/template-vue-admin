@@ -562,15 +562,16 @@ function readSavedLocale(): LoginLocale {
   }
 
   .auth-stage {
+    min-height: auto;
     border-radius: 24px;
   }
 
   .auth-visual {
-    min-height: 200px;
+    display: none;
   }
 
   .auth-panel {
-    padding: 22px;
+    padding: 22px 18px;
   }
 
   .auth-panel-head {

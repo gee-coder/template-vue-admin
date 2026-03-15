@@ -39,6 +39,7 @@ export function createDefaultBrandingSettings(): BrandingSettings {
     consoleName: readText(env.VITE_BRAND_CONSOLE_NAME, 'Nex Console'),
     productTagline: readText(env.VITE_BRAND_PRODUCT_TAGLINE, '可替换品牌素材与主色的通用管理后台'),
     logoMarkUrl: readAsset(env.VITE_BRAND_LOGO_MARK_URL, '/branding/logo-mark.svg'),
+    faviconUrl: readAsset(env.VITE_BRAND_FAVICON_URL, '/branding/logo-mark.svg'),
     loginHeroUrl: readAsset(env.VITE_BRAND_LOGIN_HERO_URL, '/branding/login-hero.svg'),
     theme: {
       primary: readText(env.VITE_BRAND_PRIMARY, '#2563eb'),
@@ -73,6 +74,16 @@ function pickTheme(value: Partial<BrandingTheme> | undefined, fallback: Branding
   }
 }
 
+function inferFaviconType(value: string) {
+  const normalized = value.split('?')[0].toLowerCase()
+  if (normalized.endsWith('.svg')) return 'image/svg+xml'
+  if (normalized.endsWith('.png')) return 'image/png'
+  if (normalized.endsWith('.webp')) return 'image/webp'
+  if (normalized.endsWith('.ico')) return 'image/x-icon'
+  if (normalized.endsWith('.jpg') || normalized.endsWith('.jpeg')) return 'image/jpeg'
+  return ''
+}
+
 export function resolveBrandAssetUrl(value?: string | null) {
   return resolveBackendAssetUrl(value)
 }
@@ -84,6 +95,7 @@ export function normalizeBrandingSettings(input?: Partial<BrandingSettings>): Br
     consoleName: pickText(input?.consoleName, defaults.consoleName),
     productTagline: pickText(input?.productTagline, defaults.productTagline),
     logoMarkUrl: pickAsset(input?.logoMarkUrl, defaults.logoMarkUrl),
+    faviconUrl: pickAsset(input?.faviconUrl, defaults.faviconUrl),
     loginHeroUrl: pickAsset(input?.loginHeroUrl, defaults.loginHeroUrl),
     theme: pickTheme(input?.theme, defaults.theme),
   }
@@ -101,6 +113,28 @@ export function syncDocumentTitle(pageTitle?: string) {
   document.title = nextTitle ? `${nextTitle} | ${branding.appTitle}` : branding.appTitle
 }
 
+export function syncDocumentFavicon() {
+  const defaults = createDefaultBrandingSettings()
+  const href = resolveBrandAssetUrl(branding.faviconUrl || branding.logoMarkUrl || defaults.faviconUrl)
+  if (!href) return
+
+  let link = document.querySelector<HTMLLinkElement>('link[data-app-favicon="true"]')
+  if (!link) {
+    link = document.createElement('link')
+    link.rel = 'icon'
+    link.setAttribute('data-app-favicon', 'true')
+    document.head.appendChild(link)
+  }
+
+  link.href = href
+  const type = inferFaviconType(href)
+  if (type) {
+    link.type = type
+  } else {
+    link.removeAttribute('type')
+  }
+}
+
 export function applyBrandingTheme(pageTitle?: string) {
   const root = document.documentElement
   const primaryRgb = hexToRgbChannels(branding.theme.primary)
@@ -114,6 +148,7 @@ export function applyBrandingTheme(pageTitle?: string) {
   root.style.setProperty('--app-hero-start', branding.theme.heroStart)
   root.style.setProperty('--app-hero-end', branding.theme.heroEnd)
   syncDocumentTitle(pageTitle)
+  syncDocumentFavicon()
 }
 
 export function setBrandingSettings(input?: Partial<BrandingSettings>, pageTitle?: string) {

@@ -1,4 +1,4 @@
-export type BrandingAssetKind = 'logoMark' | 'loginHero'
+export type BrandingAssetKind = 'logoMark' | 'favicon' | 'loginHero'
 
 export interface BrandingTheme {
   primary: string
@@ -14,6 +14,7 @@ export interface BrandingSettings {
   consoleName: string
   productTagline: string
   logoMarkUrl: string
+  faviconUrl: string
   loginHeroUrl: string
   theme: BrandingTheme
 }
