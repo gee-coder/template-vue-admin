@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { syncDocumentTitle } from '@/config/branding'
+import { resolveRouteTitle } from '@/i18n'
 import { useAuthStore } from '@/store/auth'
 import { usePermissionStore } from '@/store/permission'
 import { useAppStore } from '@/store/app'
@@ -9,7 +10,7 @@ const baseRoutes: RouteRecordRaw[] = [
     path: '/login',
     name: 'login',
     component: () => import('@/views/auth/LoginView.vue'),
-    meta: { public: true, title: '登录' },
+    meta: { public: true, title: '登录', titleKey: 'routes.login' },
   },
   {
     path: '/',
@@ -20,13 +21,13 @@ const baseRoutes: RouteRecordRaw[] = [
         path: '/dashboard',
         name: 'dashboard-home',
         component: () => import('@/views/dashboard/index.vue'),
-        meta: { title: '工作台' },
+        meta: { title: '工作台', titleKey: 'routes.dashboard' },
       },
       {
         path: '/profile',
         name: 'profile',
         component: () => import('@/views/profile/index.vue'),
-        meta: { title: '个人中心' },
+        meta: { title: '个人中心', titleKey: 'routes.profile' },
       },
     ],
   },
@@ -34,7 +35,7 @@ const baseRoutes: RouteRecordRaw[] = [
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/error/NotFoundView.vue'),
-    meta: { public: true, title: '页面不存在' },
+    meta: { public: true, title: '页面不存在', titleKey: 'routes.notFound' },
   },
 ]
 
@@ -74,8 +75,12 @@ router.beforeEach(async (to) => {
   }
 
   const appStore = useAppStore()
-  if (typeof to.meta.title === 'string') {
-    appStore.touchTab({ title: to.meta.title, path: to.fullPath })
+  if (typeof to.meta.title === 'string' || typeof to.meta.titleKey === 'string') {
+    appStore.touchTab({
+      path: to.fullPath,
+      title: typeof to.meta.title === 'string' ? to.meta.title : '',
+      titleKey: typeof to.meta.titleKey === 'string' ? to.meta.titleKey : '',
+    })
   }
 
   return true
@@ -84,7 +89,7 @@ router.beforeEach(async (to) => {
 router.afterEach((to) => {
   const appStore = useAppStore()
   appStore.closeMobileSidebar()
-  syncDocumentTitle(String(to.meta.title || '管理台'))
+  syncDocumentTitle(resolveRouteTitle(to) || '管理台')
 })
 
 export function resetDynamicRoutes() {

@@ -2,8 +2,8 @@
   <section class="page-shell">
     <header class="page-head">
       <div>
-        <h2 class="page-title">用户管理</h2>
-        <p class="page-subtitle">管理后台账号、头像、状态和角色绑定关系。</p>
+        <h2 class="page-title">{{ t('users.title') }}</h2>
+        <p class="page-subtitle">{{ t('users.subtitle') }}</p>
       </div>
     </header>
 
@@ -25,8 +25,9 @@ import { onMounted, reactive, ref } from 'vue'
 import { cloneDeep } from 'lodash-es'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { DEFAULT_AVATAR_KEY } from '@/constants/avatar'
-import { fetchUsersApi, createUserApi, updateUserApi, deleteUserApi } from '@/api/user'
+import { createUserApi, deleteUserApi, fetchUsersApi, updateUserApi } from '@/api/user'
 import { fetchRolesApi } from '@/api/role'
+import { useI18n } from '@/i18n'
 import { useAuthStore } from '@/store/auth'
 import type { Role, User } from '@/types/user'
 import UserSearchBar from '@/components/system/users/UserSearchBar.vue'
@@ -34,6 +35,7 @@ import UserTableCard from '@/components/system/users/UserTableCard.vue'
 import UserFormDrawer from '@/components/system/users/UserFormDrawer.vue'
 
 const authStore = useAuthStore()
+const { t } = useI18n()
 const users = ref<User[]>([])
 const roles = ref<Role[]>([])
 const saving = ref(false)
@@ -109,20 +111,22 @@ async function saveUser(payload: typeof form) {
         await authStore.fetchProfile()
       }
     }
-    ElMessage.success('保存成功')
+    ElMessage.success(t('users.messages.saveSuccess'))
     drawerVisible.value = false
     await loadUsers()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(error instanceof Error ? error.message : t('users.messages.saveFailed'))
   } finally {
     saving.value = false
   }
 }
 
 async function removeUser(user: User) {
-  await ElMessageBox.confirm(`确认删除用户“${user.username}”吗？`, '删除确认', { type: 'warning' })
+  await ElMessageBox.confirm(t('users.messages.deleteConfirm', { username: user.username }), t('users.messages.deleteTitle'), {
+    type: 'warning',
+  })
   await deleteUserApi(user.id)
-  ElMessage.success('删除成功')
+  ElMessage.success(t('users.messages.deleteSuccess'))
   await loadUsers()
 }
 </script>

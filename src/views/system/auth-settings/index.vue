@@ -2,28 +2,28 @@
   <section class="page-shell">
     <header class="page-head">
       <div>
-        <h2 class="page-title">认证设置</h2>
-        <p class="page-subtitle">控制后台与其他客户端是否开放邮箱、手机号登录与注册，适配不同产品形态。</p>
+        <h2 class="page-title">{{ t('authSettings.title') }}</h2>
+        <p class="page-subtitle">{{ t('authSettings.subtitle') }}</p>
       </div>
-      <el-button type="primary" :loading="saving" @click="save">保存设置</el-button>
+      <el-button type="primary" :loading="saving" @click="save">{{ t('authSettings.save') }}</el-button>
     </header>
 
     <div class="panel-grid">
       <article class="surface-card panel-section">
-        <h3>登录方式</h3>
-        <p class="muted">用户名登录固定开启，邮箱和手机号登录支持按业务需求动态开关。</p>
+        <h3>{{ t('authSettings.loginSection.title') }}</h3>
+        <p class="muted">{{ t('authSettings.loginSection.description') }}</p>
         <div class="setting-list">
           <div class="setting-item">
             <div>
-              <strong>邮箱登录</strong>
-              <p class="muted">允许用户通过邮箱地址直接登录。</p>
+              <strong>{{ t('authSettings.loginSection.emailTitle') }}</strong>
+              <p class="muted">{{ t('authSettings.loginSection.emailDescription') }}</p>
             </div>
             <el-switch v-model="form.enableEmailLogin" />
           </div>
           <div class="setting-item">
             <div>
-              <strong>手机号登录</strong>
-              <p class="muted">允许用户通过手机号直接登录。</p>
+              <strong>{{ t('authSettings.loginSection.phoneTitle') }}</strong>
+              <p class="muted">{{ t('authSettings.loginSection.phoneDescription') }}</p>
             </div>
             <el-switch v-model="form.enablePhoneLogin" />
           </div>
@@ -31,20 +31,20 @@
       </article>
 
       <article class="surface-card panel-section">
-        <h3>注册方式</h3>
-        <p class="muted">关闭某种登录方式后，对应注册方式也会自动关闭，避免注册后无法登录。</p>
+        <h3>{{ t('authSettings.registerSection.title') }}</h3>
+        <p class="muted">{{ t('authSettings.registerSection.description') }}</p>
         <div class="setting-list">
           <div class="setting-item">
             <div>
-              <strong>邮箱注册</strong>
-              <p class="muted">允许新用户通过邮箱注册账号。</p>
+              <strong>{{ t('authSettings.registerSection.emailTitle') }}</strong>
+              <p class="muted">{{ t('authSettings.registerSection.emailDescription') }}</p>
             </div>
             <el-switch v-model="form.enableEmailRegistration" :disabled="!form.enableEmailLogin" />
           </div>
           <div class="setting-item">
             <div>
-              <strong>手机号注册</strong>
-              <p class="muted">允许新用户通过手机号注册账号。</p>
+              <strong>{{ t('authSettings.registerSection.phoneTitle') }}</strong>
+              <p class="muted">{{ t('authSettings.registerSection.phoneDescription') }}</p>
             </div>
             <el-switch v-model="form.enablePhoneRegistration" :disabled="!form.enablePhoneLogin" />
           </div>
@@ -58,8 +58,10 @@
 import { onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getSystemAuthSettingsApi, updateSystemAuthSettingsApi } from '@/api/auth'
+import { useI18n } from '@/i18n'
 import type { AuthOptions } from '@/types/auth'
 
+const { t } = useI18n()
 const saving = ref(false)
 
 const form = reactive<AuthOptions>({
@@ -96,9 +98,9 @@ async function save() {
   try {
     const settings = await updateSystemAuthSettingsApi(form)
     Object.assign(form, settings)
-    ElMessage.success('认证设置已保存')
+    ElMessage.success(t('authSettings.saveSuccess'))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(error instanceof Error ? error.message : t('authSettings.saveFailed'))
   } finally {
     saving.value = false
   }

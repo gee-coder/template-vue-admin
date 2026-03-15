@@ -7,7 +7,7 @@
 
       <section class="auth-panel">
         <div class="auth-toolbar">
-          <el-select v-model="locale" size="small" class="locale-select">
+          <el-select v-model="selectedLocale" size="small" class="locale-select">
             <el-option v-for="item in localeOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
@@ -25,16 +25,12 @@
 
         <div class="auth-panel-head">
           <div>
-            <h2>{{ mode === 'login' ? text.loginHeading : text.registerHeading }}</h2>
-            <p>{{ mode === 'login' ? text.loginDescription : text.registerDescription }}</p>
+            <h2>{{ mode === 'login' ? t('auth.loginHeading') : t('auth.registerHeading') }}</h2>
+            <p>{{ mode === 'login' ? t('auth.loginDescription') : t('auth.registerDescription') }}</p>
           </div>
           <div class="mode-switch">
-            <button
-              type="button"
-              :class="['mode-btn', { active: mode === 'login' }]"
-              @click="mode = 'login'"
-            >
-              {{ text.loginTab }}
+            <button type="button" :class="['mode-btn', { active: mode === 'login' }]" @click="mode = 'login'">
+              {{ t('auth.loginTab') }}
             </button>
             <button
               v-if="canRegister"
@@ -42,48 +38,48 @@
               :class="['mode-btn', { active: mode === 'register' }]"
               @click="mode = 'register'"
             >
-              {{ text.registerTab }}
+              {{ t('auth.registerTab') }}
             </button>
           </div>
         </div>
 
         <el-alert v-if="mode === 'login'" type="info" :closable="false" show-icon>
-          {{ text.loginAlertPrefix }}{{ loginMethodsLabel }}
+          {{ t('auth.loginAlertPrefix') }}{{ loginMethodsLabel }}
         </el-alert>
         <el-alert v-else type="warning" :closable="false" show-icon>
-          {{ text.registerAlertPrefix }}{{ registerMethodsLabel }}
+          {{ t('auth.registerAlertPrefix') }}{{ registerMethodsLabel }}
         </el-alert>
 
         <el-form v-if="mode === 'login'" :model="loginForm" class="auth-form" @submit.prevent="submitLogin">
-          <el-form-item :label="text.accountLabel">
+          <el-form-item :label="t('auth.accountLabel')">
             <el-input v-model="loginForm.account" :placeholder="loginPlaceholder" />
           </el-form-item>
-          <el-form-item :label="text.passwordLabel">
-            <el-input v-model="loginForm.password" show-password :placeholder="text.loginPasswordPlaceholder" />
+          <el-form-item :label="t('auth.passwordLabel')">
+            <el-input v-model="loginForm.password" show-password :placeholder="t('auth.loginPasswordPlaceholder')" />
           </el-form-item>
           <el-button :loading="loading" type="primary" class="auth-submit" @click="submitLogin">
-            {{ text.loginAction }}
+            {{ t('auth.loginAction') }}
           </el-button>
-          <p class="auth-helper">{{ text.demoHint }}</p>
+          <p class="auth-helper">{{ t('auth.demoHint') }}</p>
         </el-form>
 
         <el-form v-else :model="registerForm" class="auth-form" @submit.prevent="submitRegister">
-          <el-form-item :label="text.accountLabel">
+          <el-form-item :label="t('auth.accountLabel')">
             <el-input v-model="registerForm.account" :placeholder="registerPlaceholder" />
           </el-form-item>
-          <el-form-item :label="text.nicknameLabel">
-            <el-input v-model="registerForm.nickname" :placeholder="text.nicknamePlaceholder" />
+          <el-form-item :label="t('auth.nicknameLabel')">
+            <el-input v-model="registerForm.nickname" :placeholder="t('auth.nicknamePlaceholder')" />
           </el-form-item>
-          <el-form-item :label="text.passwordLabel">
-            <el-input v-model="registerForm.password" show-password :placeholder="text.registerPasswordPlaceholder" />
+          <el-form-item :label="t('auth.passwordLabel')">
+            <el-input v-model="registerForm.password" show-password :placeholder="t('auth.registerPasswordPlaceholder')" />
           </el-form-item>
-          <el-form-item :label="text.confirmPasswordLabel">
-            <el-input v-model="registerForm.confirmPassword" show-password :placeholder="text.confirmPasswordPlaceholder" />
+          <el-form-item :label="t('auth.confirmPasswordLabel')">
+            <el-input v-model="registerForm.confirmPassword" show-password :placeholder="t('auth.confirmPasswordPlaceholder')" />
           </el-form-item>
           <el-button :loading="loading" type="primary" class="auth-submit" @click="submitRegister">
-            {{ text.registerAction }}
+            {{ t('auth.registerAction') }}
           </el-button>
-          <p class="auth-helper">{{ text.registerHint }}</p>
+          <p class="auth-helper">{{ t('auth.registerHint') }}</p>
         </el-form>
       </section>
     </section>
@@ -95,167 +91,25 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { getAuthOptionsApi } from '@/api/auth'
-import { branding, getBrandFallbackText, syncDocumentTitle } from '@/config/branding'
+import { branding, getBrandFallbackText } from '@/config/branding'
+import { useI18n } from '@/i18n'
 import { useAuthStore } from '@/store/auth'
 import { usePermissionStore } from '@/store/permission'
 import type { AuthOptions } from '@/types/auth'
-
-type LoginLocale = 'zh-CN' | 'en-US'
-
-interface LoginLocaleText {
-  pageTitle: string
-  loginTab: string
-  registerTab: string
-  loginHeading: string
-  registerHeading: string
-  loginDescription: string
-  registerDescription: string
-  loginAlertPrefix: string
-  registerAlertPrefix: string
-  accountLabel: string
-  passwordLabel: string
-  nicknameLabel: string
-  confirmPasswordLabel: string
-  loginPasswordPlaceholder: string
-  registerPasswordPlaceholder: string
-  confirmPasswordPlaceholder: string
-  nicknamePlaceholder: string
-  loginAction: string
-  registerAction: string
-  demoHint: string
-  registerHint: string
-  warnings: {
-    loadOptions: string
-    incompleteLogin: string
-    noRegister: string
-    incompleteRegister: string
-    mismatchPassword: string
-    loginSuccess: string
-    registerSuccess: string
-    loginFailed: string
-    registerFailed: string
-  }
-  methods: {
-    username: string
-    email: string
-    phone: string
-    unavailable: string
-  }
-  samples: {
-    admin: string
-    email: string
-    phone: string
-  }
-}
-
-const LOGIN_LOCALE_STORAGE_KEY = 'nex-login-locale'
-
-const localeOptions: Array<{ value: LoginLocale; label: string }> = [
-  { value: 'zh-CN', label: '中文(简体)' },
-  { value: 'en-US', label: 'English' },
-]
-
-const localeTexts: Record<LoginLocale, LoginLocaleText> = {
-  'zh-CN': {
-    pageTitle: '登录',
-    loginTab: '登录',
-    registerTab: '注册',
-    loginHeading: '登录后台',
-    registerHeading: '创建账号',
-    loginDescription: '输入账号与密码进入后台。',
-    registerDescription: '通过邮箱或手机号完成注册。',
-    loginAlertPrefix: '当前可用登录方式：',
-    registerAlertPrefix: '当前开放注册方式：',
-    accountLabel: '账号',
-    passwordLabel: '密码',
-    nicknameLabel: '昵称',
-    confirmPasswordLabel: '确认密码',
-    loginPasswordPlaceholder: '请输入登录密码',
-    registerPasswordPlaceholder: '至少 6 位密码',
-    confirmPasswordPlaceholder: '再次输入密码',
-    nicknamePlaceholder: '可选，不填则自动生成',
-    loginAction: '立即登录',
-    registerAction: '创建账号',
-    demoHint: '演示账号：admin / Admin123!',
-    registerHint: '账号支持自动识别邮箱和手机号，具体注册入口由后台配置决定。',
-    warnings: {
-      loadOptions: '认证配置读取失败，已回退到默认展示方式。',
-      incompleteLogin: '请先填写完整账号和密码。',
-      noRegister: '当前没有开放注册方式。',
-      incompleteRegister: '请先填写完整注册信息。',
-      mismatchPassword: '两次输入的密码不一致。',
-      loginSuccess: '登录成功',
-      registerSuccess: '注册成功',
-      loginFailed: '登录失败',
-      registerFailed: '注册失败',
-    },
-    methods: {
-      username: '用户名',
-      email: '邮箱',
-      phone: '手机号',
-      unavailable: '暂未开放',
-    },
-    samples: {
-      admin: 'admin',
-      email: 'name@example.com',
-      phone: '18800000000',
-    },
-  },
-  'en-US': {
-    pageTitle: 'Sign In',
-    loginTab: 'Sign In',
-    registerTab: 'Register',
-    loginHeading: 'Sign in to console',
-    registerHeading: 'Create account',
-    loginDescription: 'Enter your account and password to continue.',
-    registerDescription: 'Use email or phone to create a new account.',
-    loginAlertPrefix: 'Available sign-in methods: ',
-    registerAlertPrefix: 'Open registration methods: ',
-    accountLabel: 'Account',
-    passwordLabel: 'Password',
-    nicknameLabel: 'Nickname',
-    confirmPasswordLabel: 'Confirm password',
-    loginPasswordPlaceholder: 'Enter your password',
-    registerPasswordPlaceholder: 'At least 6 characters',
-    confirmPasswordPlaceholder: 'Enter password again',
-    nicknamePlaceholder: 'Optional, auto-generated if empty',
-    loginAction: 'Sign In',
-    registerAction: 'Create Account',
-    demoHint: 'Demo account: admin / Admin123!',
-    registerHint: 'The system detects email and phone automatically. Registration channels depend on admin settings.',
-    warnings: {
-      loadOptions: 'Failed to load auth options. Fallback mode is now displayed.',
-      incompleteLogin: 'Please enter both account and password.',
-      noRegister: 'Registration is currently disabled.',
-      incompleteRegister: 'Please complete the registration form first.',
-      mismatchPassword: 'The two passwords do not match.',
-      loginSuccess: 'Signed in successfully',
-      registerSuccess: 'Account created successfully',
-      loginFailed: 'Sign in failed',
-      registerFailed: 'Registration failed',
-    },
-    methods: {
-      username: 'Username',
-      email: 'Email',
-      phone: 'Phone',
-      unavailable: 'Unavailable',
-    },
-    samples: {
-      admin: 'admin',
-      email: 'name@example.com',
-      phone: '18800000000',
-    },
-  },
-}
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 const brand = branding
+const { locale, localeOptions, setLocale, t, isEnglish } = useI18n()
+
+const selectedLocale = computed({
+  get: () => locale.value,
+  set: (value) => setLocale(value),
+})
+
 const brandFallbackText = computed(() => getBrandFallbackText(brand.consoleName))
-const locale = ref<LoginLocale>(readSavedLocale())
-const text = computed(() => localeTexts[locale.value])
 
 const fallbackOptions: AuthOptions = {
   enableUsernameLogin: true,
@@ -283,34 +137,29 @@ const registerForm = reactive({
 
 const canRegister = computed(() => options.value.enableEmailRegistration || options.value.enablePhoneRegistration)
 const loginMethodsLabel = computed(() => {
-  const labels = [text.value.methods.username]
-  if (options.value.enableEmailLogin) labels.push(text.value.methods.email)
-  if (options.value.enablePhoneLogin) labels.push(text.value.methods.phone)
-  return labels.join(locale.value === 'en-US' ? ' / ' : '、')
+  const labels = [t('auth.methods.username')]
+  if (options.value.enableEmailLogin) labels.push(t('auth.methods.email'))
+  if (options.value.enablePhoneLogin) labels.push(t('auth.methods.phone'))
+  return labels.join(isEnglish.value ? ' / ' : '、')
 })
 const registerMethodsLabel = computed(() => {
   const labels: string[] = []
-  if (options.value.enableEmailRegistration) labels.push(text.value.methods.email)
-  if (options.value.enablePhoneRegistration) labels.push(text.value.methods.phone)
-  if (labels.length === 0) return text.value.methods.unavailable
-  return labels.join(locale.value === 'en-US' ? ' / ' : '、')
+  if (options.value.enableEmailRegistration) labels.push(t('auth.methods.email'))
+  if (options.value.enablePhoneRegistration) labels.push(t('auth.methods.phone'))
+  if (labels.length === 0) return t('auth.methods.unavailable')
+  return labels.join(isEnglish.value ? ' / ' : '、')
 })
 const loginPlaceholder = computed(() => {
-  const samples = [text.value.samples.admin]
-  if (options.value.enableEmailLogin) samples.push(text.value.samples.email)
-  if (options.value.enablePhoneLogin) samples.push(text.value.samples.phone)
+  const samples = [t('auth.samples.admin')]
+  if (options.value.enableEmailLogin) samples.push(t('auth.samples.email'))
+  if (options.value.enablePhoneLogin) samples.push(t('auth.samples.phone'))
   return samples.join(' / ')
 })
 const registerPlaceholder = computed(() => {
   const samples: string[] = []
-  if (options.value.enableEmailRegistration) samples.push(text.value.samples.email)
-  if (options.value.enablePhoneRegistration) samples.push(text.value.samples.phone)
-  return samples.join(' / ') || text.value.methods.unavailable
-})
-
-watch(locale, () => {
-  window.localStorage.setItem(LOGIN_LOCALE_STORAGE_KEY, locale.value)
-  syncDocumentTitle(text.value.pageTitle)
+  if (options.value.enableEmailRegistration) samples.push(t('auth.samples.email'))
+  if (options.value.enablePhoneRegistration) samples.push(t('auth.samples.phone'))
+  return samples.join(' / ') || t('auth.methods.unavailable')
 })
 
 watch(canRegister, (value) => {
@@ -320,12 +169,10 @@ watch(canRegister, (value) => {
 })
 
 onMounted(async () => {
-  syncDocumentTitle(text.value.pageTitle)
-
   try {
     options.value = await getAuthOptionsApi()
   } catch {
-    ElMessage.warning(text.value.warnings.loadOptions)
+    ElMessage.warning(t('auth.warnings.loadOptions'))
   }
 })
 
@@ -337,7 +184,7 @@ async function afterAuthSuccess(message: string) {
 
 async function submitLogin() {
   if (!loginForm.account || !loginForm.password) {
-    ElMessage.warning(text.value.warnings.incompleteLogin)
+    ElMessage.warning(t('auth.warnings.incompleteLogin'))
     return
   }
 
@@ -347,9 +194,9 @@ async function submitLogin() {
       account: loginForm.account.trim(),
       password: loginForm.password,
     })
-    await afterAuthSuccess(text.value.warnings.loginSuccess)
+    await afterAuthSuccess(t('auth.warnings.loginSuccess'))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : text.value.warnings.loginFailed)
+    ElMessage.error(error instanceof Error ? error.message : t('auth.warnings.loginFailed'))
   } finally {
     loading.value = false
   }
@@ -357,15 +204,15 @@ async function submitLogin() {
 
 async function submitRegister() {
   if (!canRegister.value) {
-    ElMessage.warning(text.value.warnings.noRegister)
+    ElMessage.warning(t('auth.warnings.noRegister'))
     return
   }
   if (!registerForm.account || !registerForm.password) {
-    ElMessage.warning(text.value.warnings.incompleteRegister)
+    ElMessage.warning(t('auth.warnings.incompleteRegister'))
     return
   }
   if (registerForm.password !== registerForm.confirmPassword) {
-    ElMessage.warning(text.value.warnings.mismatchPassword)
+    ElMessage.warning(t('auth.warnings.mismatchPassword'))
     return
   }
 
@@ -376,17 +223,12 @@ async function submitRegister() {
       nickname: registerForm.nickname.trim(),
       password: registerForm.password,
     })
-    await afterAuthSuccess(text.value.warnings.registerSuccess)
+    await afterAuthSuccess(t('auth.warnings.registerSuccess'))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : text.value.warnings.registerFailed)
+    ElMessage.error(error instanceof Error ? error.message : t('auth.warnings.registerFailed'))
   } finally {
     loading.value = false
   }
-}
-
-function readSavedLocale(): LoginLocale {
-  const saved = window.localStorage.getItem(LOGIN_LOCALE_STORAGE_KEY)
-  return saved === 'en-US' ? 'en-US' : 'zh-CN'
 }
 </script>
 

@@ -22,20 +22,20 @@
       >
         <el-menu-item index="/dashboard">
           <el-icon><House /></el-icon>
-          <span>工作台</span>
+          <span>{{ t('layout.sidebar.dashboard') }}</span>
         </el-menu-item>
         <el-sub-menu v-if="systemMenus.length" index="/system">
           <template #title>
             <el-icon><Setting /></el-icon>
-            <span>系统管理</span>
+            <span>{{ t('layout.sidebar.system') }}</span>
           </template>
           <el-menu-item v-for="menu in systemMenus" :key="menu.id" :index="menu.path">
-            <span>{{ menu.title }}</span>
+            <span>{{ translateMenuTitle(menu) }}</span>
           </el-menu-item>
         </el-sub-menu>
         <el-menu-item index="/profile">
           <el-icon><User /></el-icon>
-          <span>个人中心</span>
+          <span>{{ t('layout.sidebar.profile') }}</span>
         </el-menu-item>
       </el-menu>
     </el-scrollbar>
@@ -54,6 +54,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { CloseBold, Expand, Fold, House, Setting, User } from '@element-plus/icons-vue'
 import { branding, getBrandFallbackText } from '@/config/branding'
+import { translateMenuTitle, useI18n } from '@/i18n'
 import { useAppStore } from '@/store/app'
 import { usePermissionStore } from '@/store/permission'
 
@@ -65,6 +66,7 @@ const route = useRoute()
 const appStore = useAppStore()
 const permissionStore = usePermissionStore()
 const brand = branding
+const { t } = useI18n()
 const brandFallbackText = computed(() => getBrandFallbackText(brand.consoleName))
 const systemMenus = computed(
   () => permissionStore.menus.find((item) => item.path === '/system')?.children?.filter((item) => item.type !== 'button') || [],
@@ -74,8 +76,8 @@ const toggleIcon = computed(() => {
   return appStore.sidebarCollapsed ? Expand : Fold
 })
 const toggleLabel = computed(() => {
-  if (appStore.isMobileViewport) return '收起导航'
-  return appStore.sidebarCollapsed ? '展开导航' : '收起导航'
+  if (appStore.isMobileViewport) return t('layout.sidebar.close')
+  return appStore.sidebarCollapsed ? t('layout.sidebar.expand') : t('layout.sidebar.collapse')
 })
 </script>
 

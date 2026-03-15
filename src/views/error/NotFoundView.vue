@@ -2,17 +2,19 @@
   <div class="not-found">
     <article class="surface-card card">
       <span>404</span>
-      <h1>这个页面暂时不存在。</h1>
-      <p>可能是路由地址不正确，或者当前账号还没有加载到这个页面权限。</p>
-      <el-button type="primary" @click="router.push('/dashboard')">返回工作台</el-button>
+      <h1>{{ t('notFound.title') }}</h1>
+      <p>{{ t('notFound.description') }}</p>
+      <el-button type="primary" @click="router.push('/dashboard')">{{ t('notFound.action') }}</el-button>
     </article>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18n } from '@/i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 </script>
 
 <style scoped>

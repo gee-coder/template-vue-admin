@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 
 export interface TabItem {
-  title: string
   path: string
+  title?: string
+  titleKey?: string
 }
 
 export const useAppStore = defineStore('app', {

@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import type { MenuItem } from '@/types/menu'
 import { h } from 'vue'
 import { Document, Grid, House, Lock, Menu as MenuIcon, Setting, User } from '@element-plus/icons-vue'
+import { getMenuTitleKey } from '@/i18n'
 
 const componentMap: Record<string, () => Promise<unknown>> = {
   'views/dashboard/index.vue': () => import('@/views/dashboard/index.vue'),
@@ -39,6 +40,7 @@ export function buildDynamicRoutes(menus: MenuItem[]): RouteRecordRaw[] {
       component: (componentMap[menu.component] || componentMap['views/dashboard/index.vue']) as RouteRecordRaw['component'],
       meta: {
         title: menu.title,
+        titleKey: getMenuTitleKey(menu.path),
         icon: menu.icon,
         permission: menu.permission,
       },

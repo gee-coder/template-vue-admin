@@ -1,25 +1,25 @@
 <template>
   <el-drawer :model-value="visible" :title="title" size="460px" @close="$emit('update:visible', false)">
     <el-form label-position="top" :model="localForm">
-      <el-form-item label="角色名称">
+      <el-form-item :label="t('roles.drawer.name')">
         <el-input v-model="localForm.name" />
       </el-form-item>
-      <el-form-item v-if="mode === 'create'" label="角色编码">
+      <el-form-item v-if="mode === 'create'" :label="t('roles.drawer.code')">
         <el-input v-model="localForm.code" />
       </el-form-item>
-      <el-form-item label="备注">
+      <el-form-item :label="t('roles.drawer.remark')">
         <el-input v-model="localForm.remark" type="textarea" :rows="3" />
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item :label="t('roles.drawer.status')">
         <el-radio-group v-model="localForm.status">
-          <el-radio label="enabled">启用</el-radio>
-          <el-radio label="disabled">停用</el-radio>
+          <el-radio label="enabled">{{ t('common.enabled') }}</el-radio>
+          <el-radio label="disabled">{{ t('common.disabled') }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="关联菜单">
+      <el-form-item :label="t('roles.drawer.menuIds')">
         <el-tree-select
           v-model="localForm.menuIds"
-          :data="menuOptions"
+          :data="treeOptions"
           multiple
           check-strictly
           node-key="id"
@@ -29,14 +29,15 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="$emit('update:visible', false)">取消</el-button>
-      <el-button type="primary" :loading="loading" @click="$emit('save', { ...localForm })">保存</el-button>
+      <el-button @click="$emit('update:visible', false)">{{ t('common.cancel') }}</el-button>
+      <el-button type="primary" :loading="loading" @click="$emit('save', { ...localForm })">{{ t('common.save') }}</el-button>
     </template>
   </el-drawer>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
+import { translateMenuTitle, useI18n } from '@/i18n'
 import type { MenuItem } from '@/types/menu'
 
 interface RoleFormModel {
@@ -60,6 +61,7 @@ defineEmits<{
   save: [payload: RoleFormModel]
 }>()
 
+const { t } = useI18n()
 const localForm = reactive<RoleFormModel>({
   name: '',
   code: '',
@@ -68,11 +70,20 @@ const localForm = reactive<RoleFormModel>({
   menuIds: [],
 })
 
-const title = computed(() => (props.mode === 'create' ? '新建角色' : '编辑角色'))
+const title = computed(() => (props.mode === 'create' ? t('roles.drawer.createTitle') : t('roles.drawer.editTitle')))
+const treeOptions = computed(() => localizeMenuTree(props.menuOptions))
 
 watch(
   () => props.form,
   (value) => Object.assign(localForm, value),
   { immediate: true, deep: true },
 )
+
+function localizeMenuTree(items: MenuItem[]): MenuItem[] {
+  return items.map((item) => ({
+    ...item,
+    title: translateMenuTitle(item) || item.title,
+    children: item.children ? localizeMenuTree(item.children) : [],
+  }))
+}
 </script>

@@ -2,8 +2,8 @@
   <section class="page-shell">
     <header class="surface-card profile-hero">
       <div class="hero-copy">
-        <h2 class="page-title">个人中心</h2>
-        <p class="page-subtitle">这里展示当前登录账号的资料、角色权限，以及可直接保存的头像设置。</p>
+        <h2 class="page-title">{{ t('profile.title') }}</h2>
+        <p class="page-subtitle">{{ t('profile.subtitle') }}</p>
       </div>
       <div class="hero-avatar">
         <el-avatar :size="76" :src="avatarUrl">{{ initials }}</el-avatar>
@@ -17,19 +17,19 @@
     <article class="surface-card profile-card">
       <div class="profile-grid">
         <div>
-          <span>昵称</span>
+          <span>{{ t('profile.nickname') }}</span>
           <strong>{{ profile?.nickname || '-' }}</strong>
         </div>
         <div>
-          <span>用户名</span>
+          <span>{{ t('profile.username') }}</span>
           <strong>{{ profile?.username || '-' }}</strong>
         </div>
         <div>
-          <span>邮箱</span>
+          <span>{{ t('profile.email') }}</span>
           <strong>{{ profile?.email || '-' }}</strong>
         </div>
         <div>
-          <span>手机号</span>
+          <span>{{ t('profile.phone') }}</span>
           <strong>{{ profile?.phone || '-' }}</strong>
         </div>
       </div>
@@ -37,30 +37,30 @@
       <div class="avatar-panel">
         <div class="panel-head">
           <div>
-            <h3>更换头像</h3>
-            <p>支持上传自定义图片，也可以继续使用系统头像库，保存后顶部导航和用户资料会立即同步。</p>
+            <h3>{{ t('profile.avatarSection.title') }}</h3>
+            <p>{{ t('profile.avatarSection.description') }}</p>
           </div>
           <el-button type="primary" :loading="saving" :disabled="selectedAvatar === profile?.avatar" @click="saveAvatar">
-            保存头像
+            {{ t('profile.avatarSection.button') }}
           </el-button>
         </div>
 
         <AvatarField
           v-model="selectedAvatar"
-          title="当前登录头像"
-          description="支持上传图片或直接选择系统默认头像，适合快速切换不同账号形象。"
+          :title="t('profile.avatarSection.currentTitle')"
+          :description="t('profile.avatarSection.currentDescription')"
         />
       </div>
 
       <div class="stack">
         <div>
-          <span>角色</span>
+          <span>{{ t('profile.roles') }}</span>
           <div class="chips">
             <el-tag v-for="role in profile?.roles || []" :key="role" effect="plain">{{ role }}</el-tag>
           </div>
         </div>
         <div>
-          <span>权限</span>
+          <span>{{ t('profile.permissions') }}</span>
           <div class="chips">
             <el-tag v-for="permission in profile?.permissions || []" :key="permission" type="success" effect="plain">
               {{ permission }}
@@ -77,12 +77,14 @@ import { computed, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import AvatarField from '@/components/common/AvatarField.vue'
 import { DEFAULT_AVATAR_KEY, resolveAvatarUrl } from '@/constants/avatar'
+import { useI18n } from '@/i18n'
 import { useAuthStore } from '@/store/auth'
 
 const authStore = useAuthStore()
+const { t } = useI18n()
 const saving = ref(false)
 const profile = computed(() => authStore.profile)
-const initials = computed(() => (profile.value?.nickname || '管理').slice(0, 2).toUpperCase())
+const initials = computed(() => (profile.value?.nickname || t('layout.consoleAdmin')).slice(0, 2).toUpperCase())
 const avatarUrl = computed(() => resolveAvatarUrl(profile.value?.avatar))
 const selectedAvatar = ref(profile.value?.avatar || DEFAULT_AVATAR_KEY)
 
@@ -102,9 +104,9 @@ async function saveAvatar() {
   saving.value = true
   try {
     await authStore.updateProfile({ avatar: selectedAvatar.value })
-    ElMessage.success('头像已更新')
+    ElMessage.success(t('profile.avatarSection.success'))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '头像更新失败')
+    ElMessage.error(error instanceof Error ? error.message : t('profile.avatarSection.failure'))
   } finally {
     saving.value = false
   }

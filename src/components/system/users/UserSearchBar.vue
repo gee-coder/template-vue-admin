@@ -1,19 +1,19 @@
 <template>
   <div class="surface-card toolbar-card">
     <el-form :inline="true" :model="form" class="toolbar-form">
-      <el-form-item label="关键词">
-        <el-input v-model="form.keyword" placeholder="用户名、昵称或邮箱" clearable />
+      <el-form-item :label="t('users.search.keyword')">
+        <el-input v-model="form.keyword" :placeholder="t('users.search.keywordPlaceholder')" clearable />
       </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="form.status" placeholder="全部" clearable style="width: 140px">
-          <el-option label="启用" value="enabled" />
-          <el-option label="停用" value="disabled" />
+      <el-form-item :label="t('users.search.status')">
+        <el-select v-model="form.status" :placeholder="t('common.all')" clearable style="width: 140px">
+          <el-option :label="t('common.enabled')" value="enabled" />
+          <el-option :label="t('common.disabled')" value="disabled" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="$emit('search', { ...form })">查询</el-button>
-        <el-button @click="reset">重置</el-button>
-        <el-button type="primary" plain @click="$emit('create')">新建用户</el-button>
+        <el-button type="primary" @click="$emit('search', { ...form })">{{ t('common.search') }}</el-button>
+        <el-button @click="reset">{{ t('common.reset') }}</el-button>
+        <el-button type="primary" plain @click="$emit('create')">{{ t('users.search.create') }}</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
+import { useI18n } from '@/i18n'
 
 const props = defineProps<{
   modelValue: { keyword?: string; status?: string }
@@ -32,6 +33,7 @@ const emit = defineEmits<{
   'update:modelValue': [payload: { keyword?: string; status?: string }]
 }>()
 
+const { t } = useI18n()
 const form = reactive({ keyword: '', status: '' })
 
 watch(

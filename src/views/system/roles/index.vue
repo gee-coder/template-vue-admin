@@ -2,33 +2,33 @@
   <section class="page-shell">
     <header class="page-head">
       <div>
-        <h2 class="page-title">角色管理</h2>
-        <p class="page-subtitle">维护岗位角色、启停状态和菜单权限绑定关系。</p>
+        <h2 class="page-title">{{ t('roles.title') }}</h2>
+        <p class="page-subtitle">{{ t('roles.subtitle') }}</p>
       </div>
-      <el-button type="primary" @click="openCreate">新建角色</el-button>
+      <el-button type="primary" @click="openCreate">{{ t('roles.create') }}</el-button>
     </header>
 
     <div class="surface-card table-panel">
       <el-table :data="roles" stripe>
-        <el-table-column prop="name" label="角色名称" min-width="160" />
-        <el-table-column prop="code" label="角色编码" min-width="160" />
-        <el-table-column prop="status" label="状态" min-width="120">
+        <el-table-column prop="name" :label="t('roles.columns.name')" min-width="160" />
+        <el-table-column prop="code" :label="t('roles.columns.code')" min-width="160" />
+        <el-table-column prop="status" :label="t('roles.columns.status')" min-width="120">
           <template #default="{ row }">
             <el-tag :type="row.status === 'enabled' ? 'success' : 'info'" effect="plain">
-              {{ row.status === 'enabled' ? '启用' : '停用' }}
+              {{ row.status === 'enabled' ? t('common.enabled') : t('common.disabled') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="remark" label="备注" min-width="220" />
-        <el-table-column label="关联菜单" min-width="280">
+        <el-table-column prop="remark" :label="t('roles.columns.remark')" min-width="220" />
+        <el-table-column :label="t('roles.columns.menus')" min-width="280">
           <template #default="{ row }">
-            <el-tag v-for="menu in row.menus" :key="menu.id" effect="plain">{{ menu.title }}</el-tag>
+            <el-tag v-for="menu in row.menus" :key="menu.id" effect="plain">{{ translateMenuTitle(menu) || menu.title }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="160" fixed="right">
+        <el-table-column :label="t('roles.columns.actions')" min-width="160" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="removeRole(row.id)">删除</el-button>
+            <el-button link type="primary" @click="openEdit(row)">{{ t('common.edit') }}</el-button>
+            <el-button link type="danger" @click="removeRole(row.id)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -48,12 +48,14 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { fetchRolesApi, createRoleApi, updateRoleApi, deleteRoleApi } from '@/api/role'
 import { fetchMenusApi } from '@/api/menu'
+import { createRoleApi, deleteRoleApi, fetchRolesApi, updateRoleApi } from '@/api/role'
+import { translateMenuTitle, useI18n } from '@/i18n'
 import type { MenuItem } from '@/types/menu'
 import type { Role } from '@/types/user'
 import RoleFormDrawer from '@/components/system/roles/RoleFormDrawer.vue'
 
+const { t } = useI18n()
 const roles = ref<Role[]>([])
 const menuTree = ref<MenuItem[]>([])
 const saving = ref(false)
@@ -102,20 +104,20 @@ async function saveRole(payload: typeof form) {
     } else if (currentId.value) {
       await updateRoleApi(currentId.value, payload)
     }
-    ElMessage.success('保存成功')
+    ElMessage.success(t('roles.messages.saveSuccess'))
     drawerVisible.value = false
     await loadRoles()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(error instanceof Error ? error.message : t('roles.messages.saveFailed'))
   } finally {
     saving.value = false
   }
 }
 
 async function removeRole(id: number) {
-  await ElMessageBox.confirm('确认删除这个角色吗？', '删除确认', { type: 'warning' })
+  await ElMessageBox.confirm(t('roles.messages.deleteConfirm'), t('roles.messages.deleteTitle'), { type: 'warning' })
   await deleteRoleApi(id)
-  ElMessage.success('删除成功')
+  ElMessage.success(t('roles.messages.deleteSuccess'))
   await loadRoles()
 }
 </script>

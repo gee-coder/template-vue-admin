@@ -1,17 +1,21 @@
 <template>
   <header class="header">
+    <el-select v-model="selectedLocale" size="small" class="locale-select">
+      <el-option v-for="item in localeOptions" :key="item.value" :label="item.label" :value="item.value" />
+    </el-select>
+
     <el-dropdown trigger="click" @command="onCommand">
       <div class="user-chip">
         <el-avatar :src="avatarUrl">{{ initials }}</el-avatar>
         <div>
-          <strong>{{ authStore.profile?.nickname || '管理员' }}</strong>
+          <strong>{{ authStore.profile?.nickname || t('layout.consoleAdmin') }}</strong>
           <p>{{ authStore.profile?.username || 'admin' }}</p>
         </div>
       </div>
       <template #dropdown>
         <el-dropdown-menu>
-          <el-dropdown-item command="profile">个人中心</el-dropdown-item>
-          <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+          <el-dropdown-item command="profile">{{ t('layout.profile') }}</el-dropdown-item>
+          <el-dropdown-item command="logout">{{ t('layout.logout') }}</el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -22,6 +26,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { resolveAvatarUrl } from '@/constants/avatar'
+import { useI18n } from '@/i18n'
 import { resetDynamicRoutes } from '@/router'
 import { useAuthStore } from '@/store/auth'
 import { useAppStore } from '@/store/app'
@@ -31,8 +36,14 @@ const router = useRouter()
 const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 const appStore = useAppStore()
+const { locale, localeOptions, setLocale, t } = useI18n()
 
-const initials = computed(() => (authStore.profile?.nickname || '管理').slice(0, 2).toUpperCase())
+const selectedLocale = computed({
+  get: () => locale.value,
+  set: (value) => setLocale(value),
+})
+
+const initials = computed(() => (authStore.profile?.nickname || t('layout.consoleAdmin')).slice(0, 2).toUpperCase())
 const avatarUrl = computed(() => resolveAvatarUrl(authStore.profile?.avatar))
 
 async function onCommand(command: string) {
@@ -54,7 +65,12 @@ async function onCommand(command: string) {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: 10px;
   flex-shrink: 0;
+}
+
+.locale-select {
+  width: 138px;
 }
 
 .user-chip {
@@ -83,6 +99,12 @@ async function onCommand(command: string) {
 @media (max-width: 720px) {
   .header {
     justify-content: stretch;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .locale-select {
+    width: 100%;
   }
 
   .user-chip {

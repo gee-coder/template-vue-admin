@@ -6,7 +6,7 @@
       :class="['tab-chip', { active: tab.path === route.fullPath }]"
       @click="router.push(tab.path)"
     >
-      <span>{{ tab.title }}</span>
+      <span>{{ tab.titleKey ? t(tab.titleKey) : tab.title }}</span>
       <button type="button" class="tab-close" @click.stop="close(tab.path)">×</button>
     </div>
   </div>
@@ -14,11 +14,13 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from '@/i18n'
 import { useAppStore } from '@/store/app'
 
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
+const { t } = useI18n()
 
 async function close(path: string) {
   appStore.closeTab(path)

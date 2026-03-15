@@ -2,16 +2,16 @@
   <section class="page-shell">
     <header class="surface-card overview">
       <div>
-        <h2 class="page-title">工作台</h2>
-        <p class="page-subtitle">集中查看系统状态、认证能力、图表概览和当前模板就绪情况。</p>
+        <h2 class="page-title">{{ t('dashboard.title') }}</h2>
+        <p class="page-subtitle">{{ t('dashboard.subtitle') }}</p>
       </div>
       <div class="overview-actions">
         <div class="overview-chip">
-          <span>当前账号</span>
-          <strong>{{ authStore.profile?.nickname || '管理员' }}</strong>
+          <span>{{ t('dashboard.currentAccount') }}</span>
+          <strong>{{ authStore.profile?.nickname || t('layout.consoleAdmin') }}</strong>
         </div>
         <div class="overview-chip">
-          <span>角色</span>
+          <span>{{ t('dashboard.role') }}</span>
           <strong>{{ authStore.profile?.roles?.join(' / ') || 'super_admin' }}</strong>
         </div>
       </div>
@@ -27,20 +27,20 @@
 
     <div class="chart-grid">
       <DashboardChartCard
-        title="近七日活跃趋势"
-        description="用图表快速感知后台访问和关键动作的变化趋势，后续接真实业务数据时可直接替换。"
+        :title="t('dashboard.charts.activity.title')"
+        :description="t('dashboard.charts.activity.description')"
         :option="activityOption"
       />
       <DashboardChartCard
-        title="模板能力覆盖度"
-        description="把当前模板已经具备的核心能力做成可视化概览，更适合产品和交付阶段快速演示。"
+        :title="t('dashboard.charts.capability.title')"
+        :description="t('dashboard.charts.capability.description')"
         :option="capabilityOption"
       />
     </div>
 
     <div class="panel-grid">
       <article class="surface-card panel-section">
-        <h3>模板状态</h3>
+        <h3>{{ t('dashboard.statusPanel.title') }}</h3>
         <ul class="panel-list">
           <li v-for="item in statuses" :key="item.label">
             <div>
@@ -53,7 +53,7 @@
       </article>
 
       <article class="surface-card panel-section">
-        <h3>下一步建议</h3>
+        <h3>{{ t('dashboard.suggestionPanel.title') }}</h3>
         <ul class="panel-list">
           <li v-for="item in suggestions" :key="item.title">
             <div>
@@ -72,30 +72,89 @@
 import { computed } from 'vue'
 import type { EChartsOption } from 'echarts'
 import DashboardChartCard from '@/components/dashboard/DashboardChartCard.vue'
+import { useI18n } from '@/i18n'
 import { useAuthStore } from '@/store/auth'
 
 const authStore = useAuthStore()
+const { t, tm } = useI18n()
 
 const metrics = computed(() => [
-  { label: '权限数量', value: authStore.permissions.length, note: '来自当前角色授权' },
-  { label: '就绪端', value: 4, note: '后端、后台、官网、小程序模板' },
-  { label: '默认头像', value: 8, note: '后台内置可切换头像素材' },
-  { label: '认证策略', value: '3 合 1', note: '用户名、邮箱、手机号统一登录入口' },
+  {
+    label: t('dashboard.metrics.permissionCount.label'),
+    value: authStore.permissions.length,
+    note: t('dashboard.metrics.permissionCount.note'),
+  },
+  { label: t('dashboard.metrics.readyApps.label'), value: 4, note: t('dashboard.metrics.readyApps.note') },
+  { label: t('dashboard.metrics.presetAvatars.label'), value: 8, note: t('dashboard.metrics.presetAvatars.note') },
+  { label: t('dashboard.metrics.authPolicy.label'), value: '3 in 1', note: t('dashboard.metrics.authPolicy.note') },
 ])
 
 const statuses = computed(() => [
-  { label: '统一登录', value: '已接通', note: '后台自动识别用户名、邮箱、手机号。', type: 'success' as const },
-  { label: '登录审计', value: '已记录', note: '登录成功与失败都会进入审计日志。', type: 'success' as const },
-  { label: '注册开关', value: '可配置', note: '邮箱与手机号注册支持后台动态开关。', type: 'info' as const },
-  { label: '权限体系', value: '已启用', note: '菜单、角色与页面访问控制已经联动。', type: 'success' as const },
+  {
+    label: t('dashboard.statusPanel.items.unifiedLogin.label'),
+    value: t('dashboard.statusPanel.items.unifiedLogin.value'),
+    note: t('dashboard.statusPanel.items.unifiedLogin.note'),
+    type: 'success' as const,
+  },
+  {
+    label: t('dashboard.statusPanel.items.audit.label'),
+    value: t('dashboard.statusPanel.items.audit.value'),
+    note: t('dashboard.statusPanel.items.audit.note'),
+    type: 'success' as const,
+  },
+  {
+    label: t('dashboard.statusPanel.items.registration.label'),
+    value: t('dashboard.statusPanel.items.registration.value'),
+    note: t('dashboard.statusPanel.items.registration.note'),
+    type: 'info' as const,
+  },
+  {
+    label: t('dashboard.statusPanel.items.permission.label'),
+    value: t('dashboard.statusPanel.items.permission.value'),
+    note: t('dashboard.statusPanel.items.permission.note'),
+    type: 'success' as const,
+  },
 ])
 
-const suggestions = [
-  { title: '补首个业务域模块', note: '把模板项目真正推进到你的产品场景。', action: '优先做' },
-  { title: '细化岗位角色', note: '把 super_admin 之外的角色权限拆得更清楚。', action: '本周' },
-  { title: '接入监控与告警', note: '把登录审计、接口错误和运营指标串起来。', action: '排期中' },
-  { title: '准备小程序微信登录', note: '下一步可以开始补微信一键登录注册。', action: '待开始' },
-]
+const suggestions = computed(() => [
+  {
+    title: t('dashboard.suggestionPanel.items.business.title'),
+    note: t('dashboard.suggestionPanel.items.business.note'),
+    action: t('dashboard.suggestionPanel.items.business.action'),
+  },
+  {
+    title: t('dashboard.suggestionPanel.items.role.title'),
+    note: t('dashboard.suggestionPanel.items.role.note'),
+    action: t('dashboard.suggestionPanel.items.role.action'),
+  },
+  {
+    title: t('dashboard.suggestionPanel.items.monitor.title'),
+    note: t('dashboard.suggestionPanel.items.monitor.note'),
+    action: t('dashboard.suggestionPanel.items.monitor.action'),
+  },
+  {
+    title: t('dashboard.suggestionPanel.items.miniapp.title'),
+    note: t('dashboard.suggestionPanel.items.miniapp.note'),
+    action: t('dashboard.suggestionPanel.items.miniapp.action'),
+  },
+])
+
+const axisLabels = computed(() => [
+  t('dashboard.chartsAxis.mon'),
+  t('dashboard.chartsAxis.tue'),
+  t('dashboard.chartsAxis.wed'),
+  t('dashboard.chartsAxis.thu'),
+  t('dashboard.chartsAxis.fri'),
+  t('dashboard.chartsAxis.sat'),
+  t('dashboard.chartsAxis.sun'),
+])
+
+const capabilityLabels = computed(() => [
+  t('dashboard.capabilityLabels.unifiedLogin'),
+  t('dashboard.capabilityLabels.branding'),
+  t('dashboard.capabilityLabels.audit'),
+  t('dashboard.capabilityLabels.responsive'),
+])
 
 const activityOption = computed<EChartsOption>(() => ({
   tooltip: {
@@ -112,7 +171,7 @@ const activityOption = computed<EChartsOption>(() => ({
   xAxis: {
     type: 'category',
     boundaryGap: false,
-    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    data: axisLabels.value,
     axisLine: { lineStyle: { color: '#d9e3f0' } },
     axisLabel: { color: '#64748b' },
   },
@@ -176,7 +235,7 @@ const capabilityOption = computed<EChartsOption>(() => ({
     axisLabel: { color: '#334155' },
     axisLine: { show: false },
     axisTick: { show: false },
-    data: ['统一登录', '品牌配置', '登录审计', '响应式界面'],
+    data: capabilityLabels.value,
   },
   series: [
     {

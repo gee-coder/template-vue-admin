@@ -2,36 +2,34 @@
   <section class="page-shell">
     <header class="page-head">
       <div>
-        <h2 class="page-title">品牌设置</h2>
-        <p class="page-subtitle">
-          这里保留最常用的品牌项：浏览器标题、控制台名称、副标题、图片素材和主题颜色，方便业务方直接在后台替换。
-        </p>
+        <h2 class="page-title">{{ t('brandingSettings.title') }}</h2>
+        <p class="page-subtitle">{{ t('brandingSettings.subtitle') }}</p>
       </div>
       <div class="page-actions">
-        <el-button @click="resetToDefaults">恢复模板默认</el-button>
-        <el-button type="primary" :loading="saving" @click="save">保存设置</el-button>
+        <el-button @click="resetToDefaults">{{ t('brandingSettings.resetDefaults') }}</el-button>
+        <el-button type="primary" :loading="saving" @click="save">{{ t('brandingSettings.save') }}</el-button>
       </div>
     </header>
 
     <div class="panel-grid">
       <article class="surface-card panel-section">
-        <h3>品牌文案</h3>
+        <h3>{{ t('brandingSettings.brandCopy.title') }}</h3>
         <div class="form-grid">
-          <el-form-item label="浏览器标题">
-            <el-input v-model="form.appTitle" placeholder="例如：Nex 管理台" />
+          <el-form-item :label="t('brandingSettings.brandCopy.appTitle')">
+            <el-input v-model="form.appTitle" :placeholder="t('brandingSettings.brandCopy.appTitlePlaceholder')" />
           </el-form-item>
-          <el-form-item label="控制台名称">
-            <el-input v-model="form.consoleName" placeholder="用于登录页和顶部品牌位" />
+          <el-form-item :label="t('brandingSettings.brandCopy.consoleName')">
+            <el-input v-model="form.consoleName" :placeholder="t('brandingSettings.brandCopy.consoleNamePlaceholder')" />
           </el-form-item>
-          <el-form-item label="副标题" class="form-span-2">
-            <el-input v-model="form.productTagline" placeholder="显示在登录页和侧边栏的简短说明" />
+          <el-form-item :label="t('brandingSettings.brandCopy.tagline')" class="form-span-2">
+            <el-input v-model="form.productTagline" :placeholder="t('brandingSettings.brandCopy.taglinePlaceholder')" />
           </el-form-item>
         </div>
       </article>
 
       <article class="surface-card panel-section">
-        <h3>图片素材</h3>
-        <p class="muted">支持直接上传，也支持填写已有图片地址，保存后会实时生效。</p>
+        <h3>{{ t('brandingSettings.assets.title') }}</h3>
+        <p class="muted">{{ t('brandingSettings.assets.subtitle') }}</p>
 
         <div class="asset-grid">
           <div class="asset-card">
@@ -39,10 +37,10 @@
               <img v-if="logoPreviewUrl" :src="logoPreviewUrl" alt="" />
               <span v-else>{{ logoFallbackText }}</span>
             </div>
-            <el-form-item label="Logo 地址">
-              <el-input v-model="form.logoMarkUrl" placeholder="可上传或粘贴图片地址" />
+            <el-form-item :label="t('brandingSettings.assets.logoLabel')">
+              <el-input v-model="form.logoMarkUrl" :placeholder="t('brandingSettings.assets.logoPlaceholder')" />
             </el-form-item>
-            <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP，建议优先使用透明底 SVG。</p>
+            <p class="asset-hint">{{ t('brandingSettings.assets.logoHint') }}</p>
             <div class="asset-actions">
               <el-upload
                 ref="logoUploadRef"
@@ -53,9 +51,9 @@
                 :disabled="uploadingKind === 'logoMark'"
                 :on-change="(file) => handleAssetChange(file, 'logoMark')"
               >
-                <el-button :loading="uploadingKind === 'logoMark'">上传 Logo</el-button>
+                <el-button :loading="uploadingKind === 'logoMark'">{{ t('brandingSettings.assets.logoUpload') }}</el-button>
               </el-upload>
-              <el-button @click="clearAsset('logoMark')">清空</el-button>
+              <el-button @click="clearAsset('logoMark')">{{ t('common.clear') }}</el-button>
             </div>
           </div>
 
@@ -64,10 +62,10 @@
               <img v-if="faviconPreviewUrl" :src="faviconPreviewUrl" alt="" />
               <span v-else>{{ logoFallbackText }}</span>
             </div>
-            <el-form-item label="浏览器 favicon">
-              <el-input v-model="form.faviconUrl" placeholder="可上传或粘贴 favicon 地址" />
+            <el-form-item :label="t('brandingSettings.assets.faviconLabel')">
+              <el-input v-model="form.faviconUrl" :placeholder="t('brandingSettings.assets.faviconPlaceholder')" />
             </el-form-item>
-            <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP、ICO，推荐使用 SVG 或 64 x 64 以上 PNG。</p>
+            <p class="asset-hint">{{ t('brandingSettings.assets.faviconHint') }}</p>
             <div class="asset-actions">
               <el-upload
                 ref="faviconUploadRef"
@@ -78,21 +76,21 @@
                 :disabled="uploadingKind === 'favicon'"
                 :on-change="(file) => handleAssetChange(file, 'favicon')"
               >
-                <el-button :loading="uploadingKind === 'favicon'">上传 favicon</el-button>
+                <el-button :loading="uploadingKind === 'favicon'">{{ t('brandingSettings.assets.faviconUpload') }}</el-button>
               </el-upload>
-              <el-button @click="clearAsset('favicon')">清空</el-button>
+              <el-button @click="clearAsset('favicon')">{{ t('common.clear') }}</el-button>
             </div>
           </div>
 
           <div class="asset-card asset-card--hero">
             <div class="asset-preview asset-preview--hero">
               <img v-if="heroPreviewUrl" :src="heroPreviewUrl" alt="" />
-              <span v-else>未设置登录主视觉图时，将仅展示主题渐变背景。</span>
+              <span v-else>{{ t('brandingSettings.assets.heroEmpty') }}</span>
             </div>
-            <el-form-item label="登录主视觉图">
-              <el-input v-model="form.loginHeroUrl" placeholder="建议上传横向插图或品牌海报" />
+            <el-form-item :label="t('brandingSettings.assets.heroLabel')">
+              <el-input v-model="form.loginHeroUrl" :placeholder="t('brandingSettings.assets.heroPlaceholder')" />
             </el-form-item>
-            <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP，建议使用横向大图。</p>
+            <p class="asset-hint">{{ t('brandingSettings.assets.heroHint') }}</p>
             <div class="asset-actions">
               <el-upload
                 ref="heroUploadRef"
@@ -103,9 +101,9 @@
                 :disabled="uploadingKind === 'loginHero'"
                 :on-change="(file) => handleAssetChange(file, 'loginHero')"
               >
-                <el-button :loading="uploadingKind === 'loginHero'">上传主视觉图</el-button>
+                <el-button :loading="uploadingKind === 'loginHero'">{{ t('brandingSettings.assets.heroUpload') }}</el-button>
               </el-upload>
-              <el-button @click="clearAsset('loginHero')">清空</el-button>
+              <el-button @click="clearAsset('loginHero')">{{ t('common.clear') }}</el-button>
             </div>
           </div>
         </div>
@@ -113,7 +111,7 @@
     </div>
 
     <article class="surface-card panel-section">
-      <h3>主题颜色</h3>
+      <h3>{{ t('brandingSettings.colors.title') }}</h3>
       <div class="color-grid">
         <label v-for="item in colorFields" :key="item.key" class="color-item">
           <span>{{ item.label }}</span>
@@ -140,9 +138,11 @@ import {
   setBrandingSettings,
   syncDocumentTitle,
 } from '@/config/branding'
+import { useI18n } from '@/i18n'
 import type { BrandingAssetKind, BrandingSettings } from '@/types/branding'
 
 const route = useRoute()
+const { t } = useI18n()
 const saving = ref(false)
 const uploadingKind = ref<BrandingAssetKind | ''>('')
 const logoUploadRef = ref<UploadInstance>()
@@ -150,14 +150,14 @@ const faviconUploadRef = ref<UploadInstance>()
 const heroUploadRef = ref<UploadInstance>()
 const form = reactive<BrandingSettings>(createDefaultBrandingSettings())
 
-const colorFields: Array<{ key: keyof BrandingSettings['theme']; label: string }> = [
-  { key: 'primary', label: '主色' },
-  { key: 'primaryDark', label: '深主色' },
-  { key: 'shellStart', label: '页面背景起点' },
-  { key: 'shellEnd', label: '页面背景终点' },
-  { key: 'heroStart', label: '登录左侧起点' },
-  { key: 'heroEnd', label: '登录左侧终点' },
-]
+const colorFields = computed<Array<{ key: keyof BrandingSettings['theme']; label: string }>>(() => [
+  { key: 'primary', label: t('brandingSettings.colors.primary') },
+  { key: 'primaryDark', label: t('brandingSettings.colors.primaryDark') },
+  { key: 'shellStart', label: t('brandingSettings.colors.shellStart') },
+  { key: 'shellEnd', label: t('brandingSettings.colors.shellEnd') },
+  { key: 'heroStart', label: t('brandingSettings.colors.heroStart') },
+  { key: 'heroEnd', label: t('brandingSettings.colors.heroEnd') },
+])
 
 const logoPreviewUrl = computed(() => resolveBrandAssetUrl(form.logoMarkUrl))
 const faviconPreviewUrl = computed(() => resolveBrandAssetUrl(form.faviconUrl || form.logoMarkUrl))
@@ -174,7 +174,7 @@ async function load() {
     replaceForm(settings)
     setBrandingSettings(settings, String(route.meta.title || ''))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '品牌设置加载失败')
+    ElMessage.error(error instanceof Error ? error.message : t('brandingSettings.messages.loadFailed'))
   }
 }
 
@@ -197,7 +197,7 @@ function buildPayload(): BrandingSettings {
 
 function resetToDefaults() {
   replaceForm(createDefaultBrandingSettings())
-  ElMessage.success('已恢复为模板默认值，保存后生效')
+  ElMessage.success(t('brandingSettings.messages.resetSuccess'))
 }
 
 async function save() {
@@ -207,9 +207,9 @@ async function save() {
     replaceForm(settings)
     setBrandingSettings(settings, String(route.meta.title || ''))
     syncDocumentTitle(String(route.meta.title || ''))
-    ElMessage.success('品牌设置已保存并实时生效')
+    ElMessage.success(t('brandingSettings.messages.saveSuccess'))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    ElMessage.error(error instanceof Error ? error.message : t('brandingSettings.messages.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -232,9 +232,9 @@ async function handleAssetChange(uploadFile: UploadFile, kind: BrandingAssetKind
   try {
     const result = await uploadBrandingAssetApi(file, kind)
     assignAssetUrl(kind, result.url)
-    ElMessage.success('图片上传成功')
+    ElMessage.success(t('brandingSettings.messages.uploadSuccess'))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '上传失败')
+    ElMessage.error(error instanceof Error ? error.message : t('brandingSettings.messages.uploadFailed'))
   } finally {
     clearUploadFiles(kind)
     uploadingKind.value = ''
@@ -281,13 +281,11 @@ function validateAssetFile(file: File, kind: BrandingAssetKind) {
   const allowedExtensions = kind === 'favicon' ? [...commonExtensions, '.ico'] : commonExtensions
 
   if (!allowedExtensions.includes(extension)) {
-    return kind === 'favicon'
-      ? '请上传 PNG、JPG、JPEG、SVG、WEBP 或 ICO 格式的 favicon'
-      : '请上传 PNG、JPG、JPEG、SVG 或 WEBP 格式的图片'
+    return kind === 'favicon' ? t('brandingSettings.messages.invalidFavicon') : t('brandingSettings.messages.invalidImage')
   }
 
   if (file.size > 5 * 1024 * 1024) {
-    return '单张图片不能超过 5MB'
+    return t('brandingSettings.messages.invalidSize')
   }
 
   return ''

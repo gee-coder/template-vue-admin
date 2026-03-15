@@ -3,8 +3,8 @@
     <div class="avatar-summary">
       <el-avatar :size="72" :src="previewUrl">{{ fallbackText }}</el-avatar>
       <div class="avatar-copy">
-        <strong>{{ title }}</strong>
-        <p>{{ description }}</p>
+        <strong>{{ title || t('avatar.title') }}</strong>
+        <p>{{ description || t('avatar.description') }}</p>
 
         <div class="avatar-actions">
           <el-upload
@@ -16,22 +16,27 @@
             :disabled="uploading"
             :on-change="handleFileChange"
           >
-            <el-button :loading="uploading" type="primary" plain>上传图片</el-button>
+            <el-button :loading="uploading" type="primary" plain>{{ t('avatar.upload') }}</el-button>
           </el-upload>
-          <el-button @click="resetToDefault">恢复默认</el-button>
+          <el-button @click="resetToDefault">{{ t('avatar.reset') }}</el-button>
         </div>
 
         <p class="avatar-requirement">
-          上传要求：{{ AVATAR_UPLOAD_REQUIREMENTS.acceptedTypes }}，单张不超过
-          {{ AVATAR_UPLOAD_REQUIREMENTS.maxSizeText }}，{{ AVATAR_UPLOAD_REQUIREMENTS.recommendedSize }}。
+          {{
+            t('avatar.requirements', {
+              acceptedTypes: AVATAR_UPLOAD_REQUIREMENTS.acceptedTypes,
+              maxSize: AVATAR_UPLOAD_REQUIREMENTS.maxSizeText,
+              recommendedSize: AVATAR_UPLOAD_REQUIREMENTS.recommendedSize,
+            })
+          }}
         </p>
       </div>
     </div>
 
     <div class="avatar-presets">
       <div class="avatar-presets-head">
-        <strong>系统头像库</strong>
-        <span>上传自定义图片后，也可以随时切回系统默认头像。</span>
+        <strong>{{ t('avatar.libraryTitle') }}</strong>
+        <span>{{ t('avatar.libraryDescription') }}</span>
       </div>
       <AvatarPresetPicker :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" />
     </div>
@@ -45,27 +50,23 @@ import type { UploadFile, UploadInstance } from 'element-plus'
 import AvatarPresetPicker from '@/components/common/AvatarPresetPicker.vue'
 import { uploadAvatarAssetApi } from '@/api/auth'
 import { AVATAR_UPLOAD_REQUIREMENTS, DEFAULT_AVATAR_KEY, resolveAvatarUrl } from '@/constants/avatar'
+import { useI18n } from '@/i18n'
 
-const props = withDefaults(
-  defineProps<{
-    modelValue: string
-    title?: string
-    description?: string
-  }>(),
-  {
-    title: '更换头像',
-    description: '支持上传自定义图片，也可以继续使用系统默认头像。',
-  },
-)
+const props = defineProps<{
+  modelValue: string
+  title?: string
+  description?: string
+}>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+const { t } = useI18n()
 const uploading = ref(false)
 const uploadRef = ref<UploadInstance>()
 const previewUrl = computed(() => resolveAvatarUrl(props.modelValue))
-const fallbackText = computed(() => (props.title || '头像').slice(0, 2).toUpperCase())
+const fallbackText = computed(() => (props.title || t('avatar.title')).slice(0, 2).toUpperCase())
 
 async function handleFileChange(uploadFile: UploadFile) {
   const file = uploadFile.raw
@@ -75,14 +76,14 @@ async function handleFileChange(uploadFile: UploadFile) {
 
   const allowedTypes = ['image/png', 'image/jpeg', 'image/webp']
   if (!allowedTypes.includes(file.type)) {
-    ElMessage.warning('请上传 PNG、JPG、JPEG 或 WEBP 格式的图片')
+    ElMessage.warning(t('avatar.invalidType'))
     uploadRef.value?.clearFiles()
     return
   }
 
   const maxSize = 2 * 1024 * 1024
   if (file.size > maxSize) {
-    ElMessage.warning('单张头像图片不能超过 2MB')
+    ElMessage.warning(t('avatar.invalidSize'))
     uploadRef.value?.clearFiles()
     return
   }
@@ -91,9 +92,9 @@ async function handleFileChange(uploadFile: UploadFile) {
   try {
     const result = await uploadAvatarAssetApi(file)
     emit('update:modelValue', result.url)
-    ElMessage.success('头像图片上传成功')
+    ElMessage.success(t('avatar.uploadSuccess'))
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '头像上传失败')
+    ElMessage.error(error instanceof Error ? error.message : t('avatar.uploadFailed'))
   } finally {
     uploadRef.value?.clearFiles()
     uploading.value = false
