@@ -11,11 +11,6 @@
       </div>
     </div>
 
-    <div class="sidebar-caption">
-      <span>主导航</span>
-      <strong>统一权限与系统控制入口</strong>
-    </div>
-
     <el-scrollbar>
       <el-menu :default-active="route.path" class="sidebar-menu" router unique-opened>
         <el-menu-item index="/dashboard">
@@ -37,11 +32,6 @@
         </el-menu-item>
       </el-menu>
     </el-scrollbar>
-
-    <div class="sidebar-footer">
-      <span>模板状态</span>
-      <strong>已接入统一登录、品牌设置与审计能力</strong>
-    </div>
   </aside>
 </template>
 
@@ -65,7 +55,7 @@ const systemMenus = computed(() =>
 <style scoped>
 .sidebar {
   display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto 1fr;
   gap: 16px;
   padding: 18px 16px;
 }
@@ -100,27 +90,10 @@ const systemMenus = computed(() =>
   letter-spacing: 0.08em;
 }
 
-.brand p,
-.sidebar-caption span,
-.sidebar-footer span {
+.brand p {
   margin: 4px 0 0;
   color: #7a8795;
   font-size: 12px;
-}
-
-.sidebar-caption,
-.sidebar-footer {
-  padding: 12px 14px;
-  border: 1px solid #edf1f6;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #fbfdff, rgba(var(--app-primary-rgb), 0.04));
-}
-
-.sidebar-caption strong,
-.sidebar-footer strong {
-  display: block;
-  margin-top: 4px;
-  line-height: 1.5;
 }
 
 .sidebar-menu {
@@ -133,7 +106,7 @@ const systemMenus = computed(() =>
 
 @media (max-width: 980px) {
   .sidebar {
-    grid-template-rows: auto auto auto auto;
+    grid-template-rows: auto 1fr;
   }
 }
 </style>
