@@ -16,10 +16,12 @@
     <AppSidebar :collapsed="!appStore.isMobileViewport && appStore.sidebarCollapsed" />
     <section class="layout-main">
       <div class="layout-top surface-card">
-        <AppHeader />
+        <div class="layout-top-bar">
+          <AppTabs class="layout-tabs" />
+          <AppHeader />
+        </div>
         <div class="layout-subnav">
           <AppBreadcrumb />
-          <AppTabs />
         </div>
       </div>
       <main class="layout-content">
@@ -83,15 +85,25 @@ onBeforeUnmount(() => {
 
 .layout-top {
   display: grid;
-  gap: 10px;
-  padding: 16px 18px 14px;
+  gap: 8px;
+  padding: 14px 18px 12px;
+}
+
+.layout-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+
+.layout-tabs {
+  min-width: 0;
+  flex: 1;
 }
 
 .layout-subnav {
-  display: grid;
-  gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid #edf2f7;
+  min-width: 0;
 }
 
 .layout-content {
@@ -136,11 +148,16 @@ onBeforeUnmount(() => {
 
 @media (max-width: 720px) {
   .layout-top {
-    padding: 14px;
+    padding: 12px 14px 10px;
+  }
+
+  .layout-top-bar {
+    flex-direction: column-reverse;
+    align-items: stretch;
   }
 
   .layout-subnav {
-    padding-top: 10px;
+    padding-top: 0;
   }
 }
 </style>
