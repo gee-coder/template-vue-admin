@@ -1,5 +1,13 @@
 import request from './request'
-import type { AuthOptions, LoginPayload, ProfileUser, RegisterPayload, TokenPayload, UpdateProfilePayload } from '@/types/auth'
+import type {
+  AuthOptions,
+  AvatarUploadPayload,
+  LoginPayload,
+  ProfileUser,
+  RegisterPayload,
+  TokenPayload,
+  UpdateProfilePayload,
+} from '@/types/auth'
 
 export function getAuthOptionsApi() {
   return request.get<AuthOptions>('/auth/options')
@@ -27,6 +35,16 @@ export function profileApi() {
 
 export function updateProfileApi(payload: UpdateProfilePayload) {
   return request.put<ProfileUser>('/auth/profile', payload)
+}
+
+export function uploadAvatarAssetApi(file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request.post<AvatarUploadPayload>('/auth/avatar-assets', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
 }
 
 export function refreshTokenApi(refreshToken: string) {

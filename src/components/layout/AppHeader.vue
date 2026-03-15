@@ -1,6 +1,11 @@
 <template>
   <header class="surface-card header">
     <div class="header-meta">
+      <el-button class="sidebar-toggle" text circle @click="appStore.toggleSidebar()">
+        <el-icon>
+          <component :is="toggleIcon" />
+        </el-icon>
+      </el-button>
       <div class="meta-icon">
         <img v-if="brand.logoMarkUrl" class="meta-icon-image" :src="brand.logoMarkUrl" alt="" />
         <span v-else class="meta-icon-fallback">{{ brandFallbackText }}</span>
@@ -43,6 +48,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Expand, Fold, Operation } from '@element-plus/icons-vue'
 import { branding, getBrandFallbackText } from '@/config/branding'
 import { resolveAvatarUrl } from '@/constants/avatar'
 import { useAuthStore } from '@/store/auth'
@@ -58,6 +64,10 @@ const appStore = useAppStore()
 const brand = branding
 const runtimeLabel = import.meta.env.PROD ? 'PROD' : 'DEV'
 const brandFallbackText = computed(() => getBrandFallbackText(brand.consoleName))
+const toggleIcon = computed(() => {
+  if (appStore.isMobileViewport) return Operation
+  return appStore.sidebarCollapsed ? Expand : Fold
+})
 
 const subtitleMap: Record<string, string> = {
   工作台: '查看系统状态、模板能力和各模块准备情况。',
@@ -102,6 +112,10 @@ async function onCommand(command: string) {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.sidebar-toggle {
+  flex-shrink: 0;
 }
 
 .meta-icon {
@@ -178,6 +192,12 @@ async function onCommand(command: string) {
   .header-actions {
     flex-wrap: wrap;
     justify-content: space-between;
+  }
+}
+
+@media (max-width: 640px) {
+  .action-chip {
+    display: none;
   }
 }
 </style>

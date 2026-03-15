@@ -1,18 +1,18 @@
 <template>
-  <aside class="surface-card sidebar">
+  <aside class="surface-card sidebar" :class="{ collapsed }">
     <div class="brand">
       <div class="brand-mark-shell">
         <img v-if="brand.logoMarkUrl" class="brand-mark-image" :src="brand.logoMarkUrl" alt="" />
         <span v-else class="brand-mark-fallback">{{ brandFallbackText }}</span>
       </div>
-      <div>
+      <div v-if="!collapsed" class="brand-copy">
         <strong>{{ brand.consoleName }}</strong>
         <p>{{ brand.productTagline }}</p>
       </div>
     </div>
 
     <el-scrollbar>
-      <el-menu :default-active="route.path" class="sidebar-menu" router unique-opened>
+      <el-menu :default-active="route.path" :collapse="collapsed" :collapse-transition="false" class="sidebar-menu" router unique-opened>
         <el-menu-item index="/dashboard">
           <el-icon><House /></el-icon>
           <span>工作台</span>
@@ -42,6 +42,10 @@ import { House, Setting, User } from '@element-plus/icons-vue'
 import { branding, getBrandFallbackText } from '@/config/branding'
 import { usePermissionStore } from '@/store/permission'
 
+defineProps<{
+  collapsed?: boolean
+}>()
+
 const route = useRoute()
 const permissionStore = usePermissionStore()
 const brand = branding
@@ -58,12 +62,19 @@ const systemMenus = computed(() =>
   grid-template-rows: auto 1fr;
   gap: 16px;
   padding: 18px 16px;
+  min-height: calc(100vh - 36px);
+  overflow: hidden;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-height: 46px;
+}
+
+.brand-copy {
+  min-width: 0;
 }
 
 .brand-mark-shell {
@@ -100,13 +111,21 @@ const systemMenus = computed(() =>
   background: transparent;
 }
 
+.sidebar.collapsed {
+  padding-inline: 12px;
+}
+
+.sidebar.collapsed .brand {
+  justify-content: center;
+}
+
 .sidebar :deep(.el-menu-item.is-active) {
   box-shadow: inset 0 0 0 1px rgba(var(--app-primary-rgb), 0.08);
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1100px) {
   .sidebar {
-    grid-template-rows: auto 1fr;
+    min-height: auto;
   }
 }
 </style>

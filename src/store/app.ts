@@ -9,10 +9,27 @@ export const useAppStore = defineStore('app', {
   state: () => ({
     tabs: [] as TabItem[],
     sidebarCollapsed: false,
+    sidebarMobileOpen: false,
+    isMobileViewport: false,
   }),
   actions: {
     toggleSidebar() {
+      if (this.isMobileViewport) {
+        this.sidebarMobileOpen = !this.sidebarMobileOpen
+        return
+      }
       this.sidebarCollapsed = !this.sidebarCollapsed
+    },
+    setMobileViewport(value: boolean) {
+      this.isMobileViewport = value
+      if (value) {
+        this.sidebarMobileOpen = false
+        return
+      }
+      this.sidebarMobileOpen = false
+    },
+    closeMobileSidebar() {
+      this.sidebarMobileOpen = false
     },
     touchTab(tab: TabItem) {
       const exists = this.tabs.some((item) => item.path === tab.path)
@@ -26,4 +43,3 @@ export const useAppStore = defineStore('app', {
     },
   },
 })
-

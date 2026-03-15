@@ -32,10 +32,14 @@ async function close(path: string) {
 .tabs {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
 }
 
 .tab-chip {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 8px;

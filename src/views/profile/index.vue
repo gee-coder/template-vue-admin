@@ -38,14 +38,18 @@
         <div class="panel-head">
           <div>
             <h3>更换头像</h3>
-            <p>从默认头像库中选择一个风格，保存后顶部导航和用户资料会立即同步。</p>
+            <p>支持上传自定义图片，也可以继续使用系统头像库，保存后顶部导航和用户资料会立即同步。</p>
           </div>
           <el-button type="primary" :loading="saving" :disabled="selectedAvatar === profile?.avatar" @click="saveAvatar">
             保存头像
           </el-button>
         </div>
 
-        <AvatarPresetPicker v-model="selectedAvatar" />
+        <AvatarField
+          v-model="selectedAvatar"
+          title="当前登录头像"
+          description="支持上传图片或直接选择系统默认头像，适合快速切换不同账号形象。"
+        />
       </div>
 
       <div class="stack">
@@ -71,7 +75,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import AvatarPresetPicker from '@/components/common/AvatarPresetPicker.vue'
+import AvatarField from '@/components/common/AvatarField.vue'
 import { DEFAULT_AVATAR_KEY, resolveAvatarUrl } from '@/constants/avatar'
 import { useAuthStore } from '@/store/auth'
 

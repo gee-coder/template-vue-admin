@@ -40,6 +40,10 @@ export interface UpdateProfilePayload {
   avatar: string
 }
 
+export interface AvatarUploadPayload {
+  url: string
+}
+
 export interface TokenPayload {
   accessToken: string
   refreshToken: string

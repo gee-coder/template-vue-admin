@@ -1,6 +1,19 @@
 <template>
-  <div class="layout-shell">
-    <AppSidebar />
+  <div
+    class="layout-shell"
+    :class="{
+      'is-collapsed': !appStore.isMobileViewport && appStore.sidebarCollapsed,
+      'is-mobile': appStore.isMobileViewport,
+      'is-mobile-open': appStore.sidebarMobileOpen,
+    }"
+  >
+    <button
+      v-if="appStore.isMobileViewport && appStore.sidebarMobileOpen"
+      type="button"
+      class="layout-mask"
+      @click="appStore.closeMobileSidebar()"
+    />
+    <AppSidebar :collapsed="!appStore.isMobileViewport && appStore.sidebarCollapsed" />
     <section class="layout-main">
       <AppHeader />
       <div class="layout-subnav surface-card">
@@ -15,19 +28,42 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted } from 'vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppBreadcrumb from '@/components/layout/AppBreadcrumb.vue'
 import AppTabs from '@/components/layout/AppTabs.vue'
+import { useAppStore } from '@/store/app'
+
+const appStore = useAppStore()
+const mobileMediaQuery = '(max-width: 1100px)'
+
+function syncViewport() {
+  appStore.setMobileViewport(window.matchMedia(mobileMediaQuery).matches)
+}
+
+onMounted(() => {
+  syncViewport()
+  window.addEventListener('resize', syncViewport)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', syncViewport)
+})
 </script>
 
 <style scoped>
 .layout-shell {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width, 248px) minmax(0, 1fr);
   min-height: 100vh;
   gap: 18px;
   padding: 18px;
+  position: relative;
+}
+
+.layout-shell.is-collapsed {
+  --sidebar-width: 92px;
 }
 
 .layout-main {
@@ -47,10 +83,33 @@ import AppTabs from '@/components/layout/AppTabs.vue'
   min-height: 0;
 }
 
-@media (max-width: 980px) {
+.layout-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  border: 0;
+  background: rgba(15, 23, 42, 0.34);
+}
+
+@media (max-width: 1100px) {
   .layout-shell {
     grid-template-columns: 1fr;
     padding: 12px;
+  }
+
+  .layout-shell :deep(.sidebar) {
+    position: fixed;
+    top: 12px;
+    bottom: 12px;
+    left: 12px;
+    z-index: 12;
+    width: min(320px, calc(100vw - 24px));
+    transform: translateX(calc(-100% - 24px));
+    transition: transform 0.22s ease;
+  }
+
+  .layout-shell.is-mobile-open :deep(.sidebar) {
+    transform: translateX(0);
   }
 }
 </style>

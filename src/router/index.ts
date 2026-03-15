@@ -82,6 +82,8 @@ router.beforeEach(async (to) => {
 })
 
 router.afterEach((to) => {
+  const appStore = useAppStore()
+  appStore.closeMobileSidebar()
   syncDocumentTitle(String(to.meta.title || '管理台'))
 })
 

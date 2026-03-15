@@ -1,7 +1,15 @@
+import { resolveBackendAssetUrl } from '@/utils/assets'
+
 export interface AvatarPreset {
   key: string
   label: string
   url: string
+}
+
+export const AVATAR_UPLOAD_REQUIREMENTS = {
+  acceptedTypes: 'PNG / JPG / JPEG / WEBP',
+  maxSizeText: '2MB',
+  recommendedSize: '建议使用 1:1 方图，分辨率 240 x 240 以上',
 }
 
 export const AVATAR_PRESETS: AvatarPreset[] = [
@@ -18,5 +26,11 @@ export const AVATAR_PRESETS: AvatarPreset[] = [
 export const DEFAULT_AVATAR_KEY = AVATAR_PRESETS[0].key
 
 export function resolveAvatarUrl(value?: string | null) {
-  return AVATAR_PRESETS.find((item) => item.key === value)?.url || AVATAR_PRESETS[0].url
+  const preset = AVATAR_PRESETS.find((item) => item.key === value)
+  if (preset) {
+    return preset.url
+  }
+
+  const uploaded = resolveBackendAssetUrl(value)
+  return uploaded || AVATAR_PRESETS[0].url
 }

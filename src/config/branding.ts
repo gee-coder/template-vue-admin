@@ -1,16 +1,8 @@
 import { reactive } from 'vue'
 import type { BrandingSettings, BrandingTheme } from '@/types/branding'
+import { resolveBackendAssetUrl } from '@/utils/assets'
 
 const env = import.meta.env
-const apiBaseURL = env.VITE_API_BASE_URL || '/api/v1'
-
-function getBackendOrigin() {
-  try {
-    return new URL(apiBaseURL, window.location.origin).origin
-  } catch {
-    return window.location.origin
-  }
-}
 
 function readText(value: string | undefined, fallback: string) {
   const nextValue = value?.trim()
@@ -82,15 +74,7 @@ function pickTheme(value: Partial<BrandingTheme> | undefined, fallback: Branding
 }
 
 export function resolveBrandAssetUrl(value?: string | null) {
-  const nextValue = value?.trim()
-  if (!nextValue) return ''
-  if (nextValue.startsWith('http://') || nextValue.startsWith('https://') || nextValue.startsWith('data:') || nextValue.startsWith('blob:')) {
-    return nextValue
-  }
-  if (nextValue.startsWith('/uploads/')) {
-    return new URL(nextValue, getBackendOrigin()).toString()
-  }
-  return nextValue
+  return resolveBackendAssetUrl(value)
 }
 
 export function normalizeBrandingSettings(input?: Partial<BrandingSettings>): BrandingSettings {

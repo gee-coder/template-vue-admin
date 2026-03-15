@@ -14,7 +14,11 @@
         <el-input v-model="localForm.phone" />
       </el-form-item>
       <el-form-item label="头像">
-        <AvatarPresetPicker v-model="localForm.avatar" />
+        <AvatarField
+          v-model="localForm.avatar"
+          title="用户头像"
+          description="支持上传业务方提供的头像素材，也可以切换为系统默认头像。"
+        />
       </el-form-item>
       <el-form-item label="状态">
         <el-radio-group v-model="localForm.status">
@@ -40,7 +44,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
-import AvatarPresetPicker from '@/components/common/AvatarPresetPicker.vue'
+import AvatarField from '@/components/common/AvatarField.vue'
 import { DEFAULT_AVATAR_KEY } from '@/constants/avatar'
 import type { Role } from '@/types/user'
 
