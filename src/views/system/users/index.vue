@@ -2,7 +2,7 @@
   <section class="page-shell">
     <header>
       <h2 class="page-title">用户管理</h2>
-      <p class="page-subtitle">管理后台账号、状态和角色绑定关系。</p>
+      <p class="page-subtitle">管理后台账号、头像、状态和角色绑定关系。</p>
     </header>
 
     <UserSearchBar v-model="query" @search="loadUsers" @create="openCreate" />
@@ -22,13 +22,16 @@
 import { onMounted, reactive, ref } from 'vue'
 import { cloneDeep } from 'lodash-es'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { DEFAULT_AVATAR_KEY } from '@/constants/avatar'
 import { fetchUsersApi, createUserApi, updateUserApi, deleteUserApi } from '@/api/user'
 import { fetchRolesApi } from '@/api/role'
+import { useAuthStore } from '@/store/auth'
 import type { Role, User } from '@/types/user'
 import UserSearchBar from '@/components/system/users/UserSearchBar.vue'
 import UserTableCard from '@/components/system/users/UserTableCard.vue'
 import UserFormDrawer from '@/components/system/users/UserFormDrawer.vue'
 
+const authStore = useAuthStore()
 const users = ref<User[]>([])
 const roles = ref<Role[]>([])
 const saving = ref(false)
@@ -41,6 +44,7 @@ const form = reactive({
   nickname: '',
   email: '',
   phone: '',
+  avatar: DEFAULT_AVATAR_KEY,
   status: 'enabled',
   password: '',
   roleIds: [] as number[],
@@ -51,6 +55,7 @@ const emptyForm = {
   nickname: '',
   email: '',
   phone: '',
+  avatar: DEFAULT_AVATAR_KEY,
   status: 'enabled',
   password: '',
   roleIds: [] as number[],
@@ -83,6 +88,7 @@ function openEdit(user: User) {
     nickname: user.nickname,
     email: user.email,
     phone: user.phone,
+    avatar: user.avatar || DEFAULT_AVATAR_KEY,
     status: user.status,
     password: '',
     roleIds: user.roles.map((role) => role.id),
@@ -97,6 +103,9 @@ async function saveUser(payload: typeof form) {
       await createUserApi(payload)
     } else if (currentId.value) {
       await updateUserApi(currentId.value, payload)
+      if (currentId.value === authStore.profile?.id) {
+        await authStore.fetchProfile()
+      }
     }
     ElMessage.success('保存成功')
     drawerVisible.value = false

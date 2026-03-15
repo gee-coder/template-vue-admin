@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { loginApi, logoutApi, profileApi, registerApi } from '@/api/auth'
-import type { LoginPayload, ProfileUser, RegisterPayload } from '@/types/auth'
+import { loginApi, logoutApi, profileApi, registerApi, updateProfileApi } from '@/api/auth'
+import type { LoginPayload, ProfileUser, RegisterPayload, UpdateProfilePayload } from '@/types/auth'
 import {
   clearSessionStorage,
   getAccessToken,
@@ -34,6 +34,12 @@ export const useAuthStore = defineStore('auth', {
     },
     async fetchProfile() {
       const profile = await profileApi()
+      this.profile = profile
+      setCachedProfile(profile)
+      return profile
+    },
+    async updateProfile(payload: UpdateProfilePayload) {
+      const profile = await updateProfileApi(payload)
       this.profile = profile
       setCachedProfile(profile)
       return profile

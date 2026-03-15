@@ -9,7 +9,7 @@
       <el-tag type="success" effect="plain">统一鉴权 + 权限控制</el-tag>
       <el-dropdown trigger="click" @command="onCommand">
         <div class="user-chip">
-          <el-avatar>{{ initials }}</el-avatar>
+          <el-avatar :src="avatarUrl">{{ initials }}</el-avatar>
           <div>
             <strong>{{ authStore.profile?.nickname || '管理员' }}</strong>
             <p>{{ authStore.profile?.username || 'admin' }}</p>
@@ -29,6 +29,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { resolveAvatarUrl } from '@/constants/avatar'
 import { useAuthStore } from '@/store/auth'
 import { usePermissionStore } from '@/store/permission'
 import { useAppStore } from '@/store/app'
@@ -40,6 +41,7 @@ const permissionStore = usePermissionStore()
 const appStore = useAppStore()
 
 const initials = computed(() => (authStore.profile?.nickname || '管理').slice(0, 2).toUpperCase())
+const avatarUrl = computed(() => resolveAvatarUrl(authStore.profile?.avatar))
 
 async function onCommand(command: string) {
   if (command === 'profile') {

@@ -15,9 +15,9 @@ export interface User {
   nickname: string
   email: string
   phone: string
+  avatar: string
   status: string
   roles: Role[]
   createdAt: string
   updatedAt: string
 }
-

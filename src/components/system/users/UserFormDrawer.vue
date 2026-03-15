@@ -1,7 +1,7 @@
 <template>
-  <el-drawer :model-value="visible" :title="title" size="460px" @close="$emit('update:visible', false)">
+  <el-drawer :model-value="visible" :title="title" size="520px" @close="$emit('update:visible', false)">
     <el-form label-position="top" :model="localForm">
-      <el-form-item label="用户名" v-if="mode === 'create'">
+      <el-form-item v-if="mode === 'create'" label="用户名">
         <el-input v-model="localForm.username" />
       </el-form-item>
       <el-form-item label="昵称">
@@ -12,6 +12,9 @@
       </el-form-item>
       <el-form-item label="手机号">
         <el-input v-model="localForm.phone" />
+      </el-form-item>
+      <el-form-item label="头像">
+        <AvatarPresetPicker v-model="localForm.avatar" />
       </el-form-item>
       <el-form-item label="状态">
         <el-radio-group v-model="localForm.status">
@@ -37,6 +40,8 @@
 
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
+import AvatarPresetPicker from '@/components/common/AvatarPresetPicker.vue'
+import { DEFAULT_AVATAR_KEY } from '@/constants/avatar'
 import type { Role } from '@/types/user'
 
 interface UserFormModel {
@@ -44,6 +49,7 @@ interface UserFormModel {
   nickname: string
   email: string
   phone: string
+  avatar: string
   status: string
   password: string
   roleIds: number[]
@@ -67,6 +73,7 @@ const localForm = reactive<UserFormModel>({
   nickname: '',
   email: '',
   phone: '',
+  avatar: DEFAULT_AVATAR_KEY,
   status: 'enabled',
   password: '',
   roleIds: [],
@@ -78,6 +85,9 @@ watch(
   () => props.form,
   (value) => {
     Object.assign(localForm, value)
+    if (!localForm.avatar) {
+      localForm.avatar = DEFAULT_AVATAR_KEY
+    }
   },
   { immediate: true, deep: true },
 )

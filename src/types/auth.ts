@@ -28,11 +28,16 @@ export interface ProfileUser {
   nickname: string
   email: string
   phone: string
+  avatar: string
   status: string
   roles: string[]
   permissions: string[]
   createdAt: string
   updatedAt: string
+}
+
+export interface UpdateProfilePayload {
+  avatar: string
 }
 
 export interface TokenPayload {

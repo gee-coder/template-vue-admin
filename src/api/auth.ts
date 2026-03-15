@@ -1,5 +1,5 @@
 import request from './request'
-import type { AuthOptions, LoginPayload, ProfileUser, RegisterPayload, TokenPayload } from '@/types/auth'
+import type { AuthOptions, LoginPayload, ProfileUser, RegisterPayload, TokenPayload, UpdateProfilePayload } from '@/types/auth'
 
 export function getAuthOptionsApi() {
   return request.get<AuthOptions>('/auth/options')
@@ -23,6 +23,10 @@ export function registerApi(payload: RegisterPayload) {
 
 export function profileApi() {
   return request.get<ProfileUser>('/auth/profile')
+}
+
+export function updateProfileApi(payload: UpdateProfilePayload) {
+  return request.put<ProfileUser>('/auth/profile', payload)
 }
 
 export function refreshTokenApi(refreshToken: string) {
