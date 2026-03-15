@@ -3,14 +3,14 @@
     <section class="auth-panel surface-card">
       <div class="auth-copy">
         <span class="eyebrow">Nex 管理台模板</span>
-        <h1>把用户名、手机号、邮箱三种账号入口放进同一套认证流程。</h1>
+        <h1>一个账号输入框，自动识别用户名、邮箱和手机号。</h1>
         <p>
-          登录和注册入口都会读取后端配置。后续做具体产品时，只需要调整后端开关，就能快速决定是否开放手机号或邮箱注册。
+          登录页不再要求用户手动选择账号类型。后端会根据输入内容自动识别登录方式，后台还可以直接控制邮箱和手机号登录、注册是否开启。
         </p>
         <ul class="auth-points">
-          <li>统一 access token / refresh token 流程</li>
-          <li>登录方式与注册方式按配置动态显示</li>
-          <li>注册成功后直接进入系统，方便演示与二次开发</li>
+          <li>用户名登录始终可用</li>
+          <li>邮箱和手机号登录按后台设置动态开启</li>
+          <li>注册成功后直接进入系统，便于快速验收模板能力</li>
         </ul>
       </div>
 
@@ -24,7 +24,7 @@
             登录
           </button>
           <button
-            v-if="registerTabs.length"
+            v-if="canRegister"
             :class="['mode-btn', { 'mode-btn--active': mode === 'register' }]"
             type="button"
             @click="mode = 'register'"
@@ -34,20 +34,12 @@
         </div>
 
         <div v-if="mode === 'login'" class="auth-form">
-          <div class="channel-switch">
-            <button
-              v-for="tab in loginTabs"
-              :key="tab.value"
-              :class="['channel-btn', { 'channel-btn--active': loginType === tab.value }]"
-              type="button"
-              @click="loginType = tab.value"
-            >
-              {{ tab.label }}
-            </button>
-          </div>
+          <el-alert type="info" :closable="false" show-icon>
+            当前支持：{{ loginMethodsLabel }}
+          </el-alert>
 
           <el-form :model="loginForm" @submit.prevent="submitLogin">
-            <el-form-item :label="loginAccountLabel">
+            <el-form-item label="账号">
               <el-input v-model="loginForm.account" :placeholder="loginPlaceholder" />
             </el-form-item>
             <el-form-item label="密码">
@@ -60,20 +52,12 @@
         </div>
 
         <div v-else class="auth-form">
-          <div class="channel-switch">
-            <button
-              v-for="tab in registerTabs"
-              :key="tab.value"
-              :class="['channel-btn', { 'channel-btn--active': registerType === tab.value }]"
-              type="button"
-              @click="registerType = tab.value"
-            >
-              {{ tab.label }}
-            </button>
-          </div>
+          <el-alert type="warning" :closable="false" show-icon>
+            当前开放注册：{{ registerMethodsLabel }}
+          </el-alert>
 
           <el-form :model="registerForm" @submit.prevent="submitRegister">
-            <el-form-item :label="registerAccountLabel">
+            <el-form-item label="账号">
               <el-input v-model="registerForm.account" :placeholder="registerPlaceholder" />
             </el-form-item>
             <el-form-item label="昵称">
@@ -89,7 +73,6 @@
               创建账号
             </el-button>
           </el-form>
-          <p class="register-hint">当前可用注册方式由后端 `/auth/options` 动态控制。</p>
         </div>
       </div>
     </section>
@@ -97,13 +80,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
 import { getAuthOptionsApi } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
 import { usePermissionStore } from '@/store/permission'
-import type { AuthLoginType, AuthOptions, AuthRegisterType } from '@/types/auth'
+import type { AuthOptions } from '@/types/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -121,8 +104,6 @@ const fallbackOptions: AuthOptions = {
 const loading = ref(false)
 const mode = ref<'login' | 'register'>('login')
 const options = ref<AuthOptions>(fallbackOptions)
-const loginType = ref<AuthLoginType>('username')
-const registerType = ref<AuthRegisterType>('email')
 
 const loginForm = reactive({
   account: 'admin',
@@ -136,61 +117,31 @@ const registerForm = reactive({
   confirmPassword: '',
 })
 
-const loginTabs = computed(() => {
-  const tabs: Array<{ value: AuthLoginType; label: string }> = []
-  if (options.value.enableUsernameLogin) tabs.push({ value: 'username', label: '用户名' })
-  if (options.value.enableEmailLogin) tabs.push({ value: 'email', label: '邮箱' })
-  if (options.value.enablePhoneLogin) tabs.push({ value: 'phone', label: '手机号' })
-  return tabs
+const canRegister = computed(() => options.value.enableEmailRegistration || options.value.enablePhoneRegistration)
+const loginMethodsLabel = computed(() => {
+  const labels = ['用户名']
+  if (options.value.enableEmailLogin) labels.push('邮箱')
+  if (options.value.enablePhoneLogin) labels.push('手机号')
+  return labels.join('、')
 })
-
-const registerTabs = computed(() => {
-  const tabs: Array<{ value: AuthRegisterType; label: string }> = []
-  if (options.value.enableEmailRegistration) tabs.push({ value: 'email', label: '邮箱注册' })
-  if (options.value.enablePhoneRegistration) tabs.push({ value: 'phone', label: '手机号注册' })
-  return tabs
+const registerMethodsLabel = computed(() => {
+  const labels: string[] = []
+  if (options.value.enableEmailRegistration) labels.push('邮箱')
+  if (options.value.enablePhoneRegistration) labels.push('手机号')
+  return labels.length ? labels.join('、') : '未开放'
 })
-
 const loginPlaceholder = computed(() => {
-  switch (loginType.value) {
-    case 'email':
-      return 'name@example.com'
-    case 'phone':
-      return '18800000000'
-    default:
-      return 'admin'
-  }
+  const samples = ['admin']
+  if (options.value.enableEmailLogin) samples.push('name@example.com')
+  if (options.value.enablePhoneLogin) samples.push('18800000000')
+  return samples.join(' / ')
 })
-
-const loginAccountLabel = computed(() => {
-  switch (loginType.value) {
-    case 'email':
-      return '邮箱'
-    case 'phone':
-      return '手机号'
-    default:
-      return '用户名'
-  }
+const registerPlaceholder = computed(() => {
+  const samples: string[] = []
+  if (options.value.enableEmailRegistration) samples.push('name@example.com')
+  if (options.value.enablePhoneRegistration) samples.push('18800000000')
+  return samples.join(' / ') || '当前未开放注册'
 })
-
-const registerPlaceholder = computed(() => (registerType.value === 'email' ? 'name@example.com' : '18800000000'))
-const registerAccountLabel = computed(() => (registerType.value === 'email' ? '邮箱' : '手机号'))
-
-watch(loginTabs, (tabs) => {
-  if (!tabs.some((tab) => tab.value === loginType.value) && tabs[0]) {
-    loginType.value = tabs[0].value
-  }
-}, { immediate: true })
-
-watch(registerTabs, (tabs) => {
-  if (!tabs.length) {
-    mode.value = 'login'
-    return
-  }
-  if (!tabs.some((tab) => tab.value === registerType.value)) {
-    registerType.value = tabs[0].value
-  }
-}, { immediate: true })
 
 onMounted(async () => {
   try {
@@ -217,7 +168,6 @@ async function submitLogin() {
     await authStore.login({
       account: loginForm.account.trim(),
       password: loginForm.password,
-      loginType: loginType.value,
     })
     await afterAuthSuccess('登录成功')
   } catch (error) {
@@ -228,7 +178,7 @@ async function submitLogin() {
 }
 
 async function submitRegister() {
-  if (!registerTabs.value.length) {
+  if (!canRegister.value) {
     ElMessage.warning('当前没有开放注册方式。')
     return
   }
@@ -247,7 +197,6 @@ async function submitRegister() {
       account: registerForm.account.trim(),
       nickname: registerForm.nickname.trim(),
       password: registerForm.password,
-      registerType: registerType.value,
     })
     await afterAuthSuccess('注册成功')
   } catch (error) {
@@ -327,15 +276,13 @@ async function submitRegister() {
   background: linear-gradient(180deg, rgba(247, 250, 252, 0.96), rgba(237, 244, 247, 0.92));
 }
 
-.mode-switch,
-.channel-switch {
+.mode-switch {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.mode-btn,
-.channel-btn {
+.mode-btn {
   border: 0;
   border-radius: 999px;
   padding: 10px 16px;
@@ -345,8 +292,7 @@ async function submitRegister() {
   transition: 0.2s ease;
 }
 
-.mode-btn--active,
-.channel-btn--active {
+.mode-btn--active {
   background: #0f766e;
   color: #fff;
   box-shadow: 0 10px 24px rgba(15, 118, 110, 0.22);
@@ -359,12 +305,6 @@ async function submitRegister() {
 
 .auth-action {
   width: 100%;
-}
-
-.register-hint {
-  margin: -6px 0 0;
-  color: #64748b;
-  font-size: 13px;
 }
 
 @media (max-width: 920px) {

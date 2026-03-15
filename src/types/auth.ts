@@ -12,14 +12,14 @@ export interface AuthOptions {
 export interface LoginPayload {
   account: string
   password: string
-  loginType: AuthLoginType
+  loginType?: AuthLoginType
 }
 
 export interface RegisterPayload {
   account: string
   password: string
   nickname?: string
-  registerType: AuthRegisterType
+  registerType?: AuthRegisterType
 }
 
 export interface ProfileUser {

@@ -5,6 +5,14 @@ export function getAuthOptionsApi() {
   return request.get<AuthOptions>('/auth/options')
 }
 
+export function getSystemAuthSettingsApi() {
+  return request.get<AuthOptions>('/system/auth-settings')
+}
+
+export function updateSystemAuthSettingsApi(payload: AuthOptions) {
+  return request.put<AuthOptions>('/system/auth-settings', payload)
+}
+
 export function loginApi(payload: LoginPayload) {
   return request.post<TokenPayload>('/auth/login', payload)
 }
