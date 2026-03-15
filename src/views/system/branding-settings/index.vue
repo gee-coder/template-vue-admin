@@ -126,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadFile, UploadInstance } from 'element-plus'
 import { useRoute } from 'vue-router'
@@ -134,6 +134,7 @@ import { getSystemBrandingSettingsApi, updateSystemBrandingSettingsApi, uploadBr
 import {
   createDefaultBrandingSettings,
   getBrandFallbackText,
+  normalizeBrandingCopy,
   resolveBrandAssetUrl,
   setBrandingSettings,
   syncDocumentTitle,
@@ -142,7 +143,7 @@ import { useI18n } from '@/i18n'
 import type { BrandingAssetKind, BrandingSettings } from '@/types/branding'
 
 const route = useRoute()
-const { t } = useI18n()
+const { locale, t } = useI18n()
 const saving = ref(false)
 const uploadingKind = ref<BrandingAssetKind | ''>('')
 const logoUploadRef = ref<UploadInstance>()
@@ -168,6 +169,10 @@ onMounted(() => {
   void load()
 })
 
+watch(locale, () => {
+  replaceForm(buildPayload())
+})
+
 async function load() {
   try {
     const settings = await getSystemBrandingSettingsApi()
@@ -180,7 +185,9 @@ async function load() {
 
 function replaceForm(settings: BrandingSettings) {
   const defaults = createDefaultBrandingSettings()
+  const copy = normalizeBrandingCopy(settings)
   Object.assign(form, defaults, settings, {
+    ...copy,
     theme: {
       ...defaults.theme,
       ...settings.theme,
