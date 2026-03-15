@@ -1,8 +1,12 @@
 <template>
   <header class="surface-card header">
     <div class="header-meta">
-      <div class="meta-icon">控制台</div>
+      <div class="meta-icon">
+        <img v-if="brand.logoMarkUrl" class="meta-icon-image" :src="brand.logoMarkUrl" alt="" />
+        <span v-else class="meta-icon-fallback">{{ brandFallbackText }}</span>
+      </div>
       <div>
+        <span class="meta-caption">{{ brand.consoleName }}</span>
         <strong>{{ currentTitle }}</strong>
         <p>{{ currentSubtitle }}</p>
       </div>
@@ -11,7 +15,7 @@
     <div class="header-actions">
       <div class="action-chip">
         <span>环境</span>
-        <strong>DEV</strong>
+        <strong>{{ runtimeLabel }}</strong>
       </div>
       <div class="action-chip">
         <span>审计</span>
@@ -39,6 +43,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { branding, getBrandFallbackText } from '@/config/branding'
 import { resolveAvatarUrl } from '@/constants/avatar'
 import { useAuthStore } from '@/store/auth'
 import { usePermissionStore } from '@/store/permission'
@@ -50,6 +55,9 @@ const route = useRoute()
 const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 const appStore = useAppStore()
+const brand = branding
+const runtimeLabel = import.meta.env.PROD ? 'PROD' : 'DEV'
+const brandFallbackText = computed(() => getBrandFallbackText(brand.consoleName))
 
 const subtitleMap: Record<string, string> = {
   工作台: '查看系统状态、模板能力和各模块准备情况。',
@@ -57,12 +65,13 @@ const subtitleMap: Record<string, string> = {
   角色管理: '为不同岗位绑定菜单能力与访问边界。',
   菜单管理: '维护菜单树、路由组件与权限节点映射。',
   认证设置: '按产品需求控制邮箱和手机号登录注册。',
+  品牌设置: '实时维护 logo、主视觉图、品牌文案与主题颜色。',
   登录审计: '追踪登录成功、失败与客户端来源。',
   个人中心: '维护当前账号资料与头像。',
 }
 
-const currentTitle = computed(() => String(route.meta.title || 'Nex Console'))
-const currentSubtitle = computed(() => subtitleMap[currentTitle.value] || '统一后台模板与权限中心。')
+const currentTitle = computed(() => String(route.meta.title || brand.consoleName))
+const currentSubtitle = computed(() => subtitleMap[currentTitle.value] || '统一后台模板、品牌配置与权限中心。')
 const initials = computed(() => (authStore.profile?.nickname || '管理').slice(0, 2).toUpperCase())
 const avatarUrl = computed(() => resolveAvatarUrl(authStore.profile?.avatar))
 
@@ -96,12 +105,34 @@ async function onCommand(command: string) {
 }
 
 .meta-icon {
-  padding: 8px 10px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 12px;
-  background: #eef4ff;
-  color: #3f6fd9;
+  background: linear-gradient(135deg, rgba(var(--app-primary-rgb), 0.12), rgba(var(--app-primary-rgb), 0.22));
+}
+
+.meta-icon-image {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.meta-icon-fallback {
+  color: var(--app-primary);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.meta-caption {
+  display: inline-flex;
+  margin-bottom: 4px;
+  color: var(--app-primary);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .header-meta p,
@@ -123,7 +154,7 @@ async function onCommand(command: string) {
   padding: 9px 12px;
   border: 1px solid #edf1f6;
   border-radius: 12px;
-  background: #fafcff;
+  background: linear-gradient(180deg, #fbfdff, rgba(var(--app-primary-rgb), 0.04));
 }
 
 .action-chip strong {

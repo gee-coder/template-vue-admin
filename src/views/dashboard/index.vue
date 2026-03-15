@@ -3,7 +3,7 @@
     <header class="surface-card overview">
       <div>
         <h2 class="page-title">工作台</h2>
-        <p class="page-subtitle">参考 1Panel 的信息密度，集中展示账号、权限、认证能力与模板准备状态。</p>
+        <p class="page-subtitle">集中查看系统状态、认证能力和当前模板就绪情况。</p>
       </div>
       <div class="overview-actions">
         <div class="overview-chip">

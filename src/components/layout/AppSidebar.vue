@@ -1,16 +1,19 @@
 <template>
   <aside class="surface-card sidebar">
     <div class="brand">
-      <div class="brand-mark">N</div>
+      <div class="brand-mark-shell">
+        <img v-if="brand.logoMarkUrl" class="brand-mark-image" :src="brand.logoMarkUrl" alt="" />
+        <span v-else class="brand-mark-fallback">{{ brandFallbackText }}</span>
+      </div>
       <div>
-        <strong>Nex Console</strong>
-        <p>运营模板管理后台</p>
+        <strong>{{ brand.consoleName }}</strong>
+        <p>{{ brand.productTagline }}</p>
       </div>
     </div>
 
     <div class="sidebar-caption">
       <span>主导航</span>
-      <strong>统一权限与配置中心</strong>
+      <strong>统一权限与系统控制入口</strong>
     </div>
 
     <el-scrollbar>
@@ -37,7 +40,7 @@
 
     <div class="sidebar-footer">
       <span>模板状态</span>
-      <strong>已接入统一登录、认证设置、头像库</strong>
+      <strong>已接入统一登录、品牌设置与审计能力</strong>
     </div>
   </aside>
 </template>
@@ -46,10 +49,13 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { House, Setting, User } from '@element-plus/icons-vue'
+import { branding, getBrandFallbackText } from '@/config/branding'
 import { usePermissionStore } from '@/store/permission'
 
 const route = useRoute()
 const permissionStore = usePermissionStore()
+const brand = branding
+const brandFallbackText = computed(() => getBrandFallbackText(brand.consoleName))
 
 const systemMenus = computed(() =>
   permissionStore.menus.find((item) => item.path === '/system')?.children?.filter((item) => item.type !== 'button') || [],
@@ -70,16 +76,28 @@ const systemMenus = computed(() =>
   gap: 12px;
 }
 
-.brand-mark {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
+.brand-mark-shell {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 14px;
-  color: #fff;
-  font-weight: 700;
-  background: linear-gradient(135deg, #3f6fd9, #274da5);
-  box-shadow: 0 8px 20px rgba(63, 111, 217, 0.24);
+  background: linear-gradient(135deg, rgba(var(--app-primary-rgb), 0.12), rgba(var(--app-primary-rgb), 0.22));
+  box-shadow: 0 8px 20px rgba(var(--app-primary-rgb), 0.16);
+}
+
+.brand-mark-image {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.brand-mark-fallback {
+  color: var(--app-primary);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .brand p,
@@ -95,7 +113,7 @@ const systemMenus = computed(() =>
   padding: 12px 14px;
   border: 1px solid #edf1f6;
   border-radius: 14px;
-  background: #fafcff;
+  background: linear-gradient(180deg, #fbfdff, rgba(var(--app-primary-rgb), 0.04));
 }
 
 .sidebar-caption strong,
@@ -107,6 +125,10 @@ const systemMenus = computed(() =>
 
 .sidebar-menu {
   background: transparent;
+}
+
+.sidebar :deep(.el-menu-item.is-active) {
+  box-shadow: inset 0 0 0 1px rgba(var(--app-primary-rgb), 0.08);
 }
 
 @media (max-width: 980px) {

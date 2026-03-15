@@ -1,43 +1,25 @@
 <template>
   <div class="auth-shell">
     <section class="auth-stage">
-      <aside class="auth-overview">
-        <div class="overview-copy">
-          <span class="overview-badge">Nex Console</span>
-          <h1>像 1Panel 一样，保持清爽、稳定、易用的后台登录体验。</h1>
-          <p>
-            登录页统一为一个账号输入框，自动识别用户名、邮箱和手机号。右侧保留最直接的操作路径，左侧则集中展示模板能力与当前开放的认证方式。
-          </p>
-        </div>
-
-        <div class="overview-panels">
-          <article class="preview-card">
-            <strong>当前支持</strong>
-            <p>{{ loginMethodsLabel }}</p>
-            <small>用户名始终可用，邮箱和手机号按后台开关动态启用。</small>
-          </article>
-          <article class="preview-card">
-            <strong>注册入口</strong>
-            <p>{{ registerMethodsLabel }}</p>
-            <small>注册成功后直接进入系统，方便模板能力验收与产品初始化。</small>
-          </article>
-          <article class="preview-card preview-card--row">
-            <div>
-              <strong>演示账号</strong>
-              <p>admin</p>
-            </div>
-            <div>
-              <strong>演示密码</strong>
-              <p>Admin123!</p>
-            </div>
-          </article>
-        </div>
+      <aside class="auth-visual">
+        <img v-if="brand.loginHeroUrl" class="auth-visual-image" :src="brand.loginHeroUrl" alt="" />
       </aside>
 
-      <section class="auth-panel surface-card">
+      <section class="auth-panel">
+        <div class="auth-brand">
+          <div class="brand-mark-shell">
+            <img v-if="brand.logoMarkUrl" class="brand-mark-image" :src="brand.logoMarkUrl" alt="" />
+            <span v-else class="brand-mark-fallback">{{ brandFallbackText }}</span>
+          </div>
+          <div>
+            <strong>{{ brand.consoleName }}</strong>
+            <p>{{ brand.productTagline }}</p>
+          </div>
+        </div>
+
         <div class="auth-panel-head">
           <div>
-            <h2>{{ mode === 'login' ? '欢迎回来' : '创建账号' }}</h2>
+            <h2>{{ mode === 'login' ? '登录后台' : '创建账号' }}</h2>
             <p>{{ mode === 'login' ? '输入账号与密码进入后台。' : '通过邮箱或手机号完成注册。' }}</p>
           </div>
           <div class="mode-switch">
@@ -76,6 +58,7 @@
           <el-button :loading="loading" type="primary" class="auth-submit" @click="submitLogin">
             立即登录
           </el-button>
+          <p class="auth-helper">演示账号：admin / Admin123!</p>
         </el-form>
 
         <el-form v-else :model="registerForm" class="auth-form" @submit.prevent="submitRegister">
@@ -94,6 +77,7 @@
           <el-button :loading="loading" type="primary" class="auth-submit" @click="submitRegister">
             创建账号
           </el-button>
+          <p class="auth-helper">账号支持自动识别邮箱和手机号，具体注册入口由后台配置决定。</p>
         </el-form>
       </section>
     </section>
@@ -105,6 +89,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { getAuthOptionsApi } from '@/api/auth'
+import { branding, getBrandFallbackText } from '@/config/branding'
 import { useAuthStore } from '@/store/auth'
 import { usePermissionStore } from '@/store/permission'
 import type { AuthOptions } from '@/types/auth'
@@ -113,6 +98,8 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
+const brand = branding
+const brandFallbackText = computed(() => getBrandFallbackText(brand.consoleName))
 
 const fallbackOptions: AuthOptions = {
   enableUsernameLogin: true,
@@ -237,89 +224,83 @@ async function submitRegister() {
 }
 
 .auth-stage {
-  width: min(1160px, 100%);
+  width: min(1180px, 100%);
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 22px;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 0;
   align-items: stretch;
+  overflow: hidden;
+  border-radius: 32px;
+  border: 1px solid rgba(223, 231, 240, 0.92);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 34px 72px rgba(var(--app-primary-rgb), 0.14);
 }
 
-.auth-overview {
-  padding: 28px 30px;
-  border-radius: 28px;
+.auth-visual {
+  min-height: 640px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 249, 254, 0.96)),
-    radial-gradient(circle at top right, rgba(63, 111, 217, 0.16), transparent 28%);
-  border: 1px solid rgba(223, 231, 240, 0.9);
-  box-shadow: 0 16px 42px rgba(31, 45, 61, 0.08);
-  display: grid;
-  gap: 24px;
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 34%),
+    linear-gradient(135deg, var(--app-hero-start), var(--app-hero-end));
 }
 
-.overview-badge {
-  display: inline-flex;
-  width: fit-content;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: #edf3ff;
-  color: #3f6fd9;
-  font-size: 12px;
-  font-weight: 700;
+.auth-visual-image {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  max-height: 100%;
+  object-fit: contain;
 }
 
-.overview-copy h1 {
-  margin: 14px 0 0;
-  font-size: clamp(32px, 4vw, 46px);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-}
-
-.overview-copy p {
-  margin: 16px 0 0;
-  max-width: 560px;
-  color: #667586;
-  line-height: 1.8;
-}
-
-.overview-panels {
-  display: grid;
+.auth-brand {
+  display: flex;
+  align-items: center;
   gap: 14px;
 }
 
-.preview-card {
-  padding: 18px 20px;
-  border: 1px solid #e6ecf4;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.86);
+.brand-mark-shell {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(var(--app-primary-rgb), 0.12), rgba(var(--app-primary-rgb), 0.2));
 }
 
-.preview-card strong {
-  display: block;
+.brand-mark-image {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.brand-mark-fallback {
+  color: var(--app-primary);
   font-size: 14px;
-}
-
-.preview-card p {
-  margin: 8px 0 6px;
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.preview-card small {
-  color: #748396;
-  line-height: 1.6;
-}
-
-.preview-card--row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .auth-panel {
-  padding: 28px;
+  padding: 34px 40px;
   display: grid;
   align-content: start;
   gap: 18px;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.auth-brand strong {
+  display: block;
+  font-size: 18px;
+}
+
+.auth-brand p {
+  margin: 6px 0 0;
+  color: var(--app-muted);
+  line-height: 1.7;
 }
 
 .auth-panel-head {
@@ -358,8 +339,8 @@ async function submitRegister() {
 
 .mode-btn.active {
   background: #fff;
-  color: #315fc7;
-  box-shadow: 0 6px 16px rgba(31, 45, 61, 0.08);
+  color: var(--app-primary);
+  box-shadow: 0 6px 16px rgba(var(--app-primary-rgb), 0.12);
 }
 
 .auth-form {
@@ -373,9 +354,24 @@ async function submitRegister() {
   height: 42px;
 }
 
+.auth-helper {
+  margin: 8px 0 0;
+  color: var(--app-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
 @media (max-width: 980px) {
   .auth-stage {
     grid-template-columns: 1fr;
+  }
+
+  .auth-visual {
+    min-height: 320px;
+  }
+
+  .auth-panel {
+    padding: 28px;
   }
 }
 
@@ -386,10 +382,6 @@ async function submitRegister() {
 
   .auth-panel-head {
     flex-direction: column;
-  }
-
-  .preview-card--row {
-    grid-template-columns: 1fr;
   }
 }
 </style>

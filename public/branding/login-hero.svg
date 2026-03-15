@@ -1,0 +1,86 @@
+<svg width="960" height="720" viewBox="0 0 960 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heroBg" x1="126" y1="56" x2="828" y2="664" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5E8FFF"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="heroCard" x1="496" y1="160" x2="760" y2="476" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white"/>
+      <stop offset="1" stop-color="#E9F1FF"/>
+    </linearGradient>
+    <filter id="shadow" x="178" y="138" width="630" height="444" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="28"/>
+      <feGaussianBlur stdDeviation="30"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0705882 0 0 0 0 0.203922 0 0 0 0 0.568627 0 0 0 0.14 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_2"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_2" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="960" height="720" rx="40" fill="url(#heroBg)"/>
+  <path d="M0 114H960" stroke="white" stroke-opacity="0.16"/>
+  <g opacity="0.14" stroke="white">
+    <path d="M142 56V664"/>
+    <path d="M254 56V664"/>
+    <path d="M366 56V664"/>
+    <path d="M478 56V664"/>
+    <path d="M590 56V664"/>
+    <path d="M702 56V664"/>
+    <path d="M814 56V664"/>
+    <path d="M80 142H880"/>
+    <path d="M80 254H880"/>
+    <path d="M80 366H880"/>
+    <path d="M80 478H880"/>
+    <path d="M80 590H880"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="276" y="166" width="196" height="196" rx="44" fill="#1E40AF"/>
+    <rect x="492" y="158" width="252" height="358" rx="42" fill="url(#heroCard)"/>
+    <rect x="524" y="210" width="188" height="26" rx="13" fill="#D6E4FF"/>
+    <rect x="524" y="260" width="94" height="134" rx="22" fill="#F8FBFF"/>
+    <rect x="634" y="260" width="78" height="62" rx="18" fill="#F8FBFF"/>
+    <rect x="634" y="336" width="78" height="58" rx="18" fill="#F8FBFF"/>
+    <rect x="524" y="426" width="188" height="54" rx="20" fill="#F8FBFF"/>
+    <path d="M556 454C556 436.327 570.327 422 588 422H646C663.673 422 678 436.327 678 454V454H556V454Z" fill="#D9E7FF"/>
+    <path d="M566 454C566 441.85 575.85 432 588 432H622C634.15 432 644 441.85 644 454V454H566V454Z" fill="#2F63F6"/>
+    <rect x="548" y="276" width="16" height="86" rx="8" fill="#2F63F6"/>
+    <rect x="576" y="302" width="16" height="60" rx="8" fill="#2F63F6" opacity="0.72"/>
+    <rect x="604" y="286" width="16" height="76" rx="8" fill="#2F63F6" opacity="0.4"/>
+    <circle cx="672" cy="292" r="18" fill="#E6EEFF"/>
+    <circle cx="672" cy="292" r="9" fill="#2F63F6"/>
+    <circle cx="672" cy="364" r="18" fill="#E6EEFF"/>
+    <circle cx="672" cy="364" r="14" stroke="#2F63F6" stroke-width="8"/>
+
+    <rect x="190" y="446" width="188" height="110" rx="28" fill="#F8FBFF" opacity="0.96"/>
+    <path d="M220 520C242 472 262 458 282 472C302 486 326 514 352 466" stroke="#2F63F6" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <g>
+    <rect x="246" y="140" width="236" height="236" rx="56" fill="rgba(255,255,255,0.18)"/>
+    <path
+      d="M374 198L454 244V334L374 380L294 334V244L374 198Z"
+      stroke="white"
+      stroke-width="16"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M344 264V320L406 284V340"
+      stroke="white"
+      stroke-width="16"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+
+  <g opacity="0.95">
+    <circle cx="654" cy="124" r="56" fill="rgba(255,255,255,0.92)"/>
+    <circle cx="744" cy="174" r="34" fill="rgba(255,255,255,0.86)"/>
+    <path d="M654 92V156" stroke="#9EBBFF" stroke-width="10" stroke-linecap="round"/>
+    <path d="M622 124H686" stroke="#9EBBFF" stroke-width="10" stroke-linecap="round"/>
+    <path d="M744 152V196" stroke="#9EBBFF" stroke-width="8" stroke-linecap="round"/>
+    <path d="M722 174H766" stroke="#9EBBFF" stroke-width="8" stroke-linecap="round"/>
+  </g>
+</svg>

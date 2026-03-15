@@ -49,9 +49,9 @@ async function close(path: string) {
 }
 
 .tab-chip.active {
-  border-color: rgba(63, 111, 217, 0.22);
-  background: #edf3ff;
-  color: #315fc7;
+  border-color: rgba(var(--app-primary-rgb), 0.22);
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
 }
 
 .tab-close {

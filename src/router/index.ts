@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { syncDocumentTitle } from '@/config/branding'
 import { useAuthStore } from '@/store/auth'
 import { usePermissionStore } from '@/store/permission'
 import { useAppStore } from '@/store/app'
@@ -81,7 +82,7 @@ router.beforeEach(async (to) => {
 })
 
 router.afterEach((to) => {
-  document.title = `${String(to.meta.title || '管理台')} | ${import.meta.env.VITE_APP_TITLE || 'Nex 管理台'}`
+  syncDocumentTitle(String(to.meta.title || '管理台'))
 })
 
 export function resetDynamicRoutes() {
