@@ -8,7 +8,7 @@
       <div class="hero-avatar">
         <el-avatar :size="76" :src="avatarUrl">{{ initials }}</el-avatar>
         <div>
-          <strong>{{ profile?.nickname || '-' }}</strong>
+          <strong>{{ displayNickname || '-' }}</strong>
           <p>{{ profile?.username || '-' }}</p>
         </div>
       </div>
@@ -18,7 +18,7 @@
       <div class="profile-grid">
         <div>
           <span>{{ t('profile.nickname') }}</span>
-          <strong>{{ profile?.nickname || '-' }}</strong>
+          <strong>{{ displayNickname || '-' }}</strong>
         </div>
         <div>
           <span>{{ t('profile.username') }}</span>
@@ -56,7 +56,7 @@
         <div>
           <span>{{ t('profile.roles') }}</span>
           <div class="chips">
-            <el-tag v-for="role in profile?.roles || []" :key="role" effect="plain">{{ role }}</el-tag>
+            <el-tag v-for="role in profile?.roles || []" :key="role" effect="plain">{{ translateTemplateRole(role) }}</el-tag>
           </div>
         </div>
         <div>
@@ -79,12 +79,14 @@ import AvatarField from '@/components/common/AvatarField.vue'
 import { DEFAULT_AVATAR_KEY, resolveAvatarUrl } from '@/constants/avatar'
 import { useI18n } from '@/i18n'
 import { useAuthStore } from '@/store/auth'
+import { translateTemplateNickname, translateTemplateRole } from '@/utils/template-display'
 
 const authStore = useAuthStore()
 const { t } = useI18n()
 const saving = ref(false)
 const profile = computed(() => authStore.profile)
-const initials = computed(() => (profile.value?.nickname || t('layout.consoleAdmin')).slice(0, 2).toUpperCase())
+const displayNickname = computed(() => translateTemplateNickname(profile.value?.username, profile.value?.nickname))
+const initials = computed(() => (displayNickname.value || t('layout.consoleAdmin')).slice(0, 2).toUpperCase())
 const avatarUrl = computed(() => resolveAvatarUrl(profile.value?.avatar))
 const selectedAvatar = ref(profile.value?.avatar || DEFAULT_AVATAR_KEY)
 

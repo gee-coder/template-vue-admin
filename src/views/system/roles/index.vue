@@ -10,7 +10,11 @@
 
     <div class="surface-card table-panel">
       <el-table :data="roles" stripe>
-        <el-table-column prop="name" :label="t('roles.columns.name')" min-width="160" />
+        <el-table-column :label="t('roles.columns.name')" min-width="160">
+          <template #default="{ row }">
+            {{ translateTemplateRole(row) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="code" :label="t('roles.columns.code')" min-width="160" />
         <el-table-column prop="status" :label="t('roles.columns.status')" min-width="120">
           <template #default="{ row }">
@@ -19,7 +23,11 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="remark" :label="t('roles.columns.remark')" min-width="220" />
+        <el-table-column :label="t('roles.columns.remark')" min-width="220">
+          <template #default="{ row }">
+            {{ translateTemplateRoleRemark(row.remark) || row.remark }}
+          </template>
+        </el-table-column>
         <el-table-column :label="t('roles.columns.menus')" min-width="280">
           <template #default="{ row }">
             <el-tag v-for="menu in row.menus" :key="menu.id" effect="plain">{{ translateMenuTitle(menu) || menu.title }}</el-tag>
@@ -54,6 +62,7 @@ import { translateMenuTitle, useI18n } from '@/i18n'
 import type { MenuItem } from '@/types/menu'
 import type { Role } from '@/types/user'
 import RoleFormDrawer from '@/components/system/roles/RoleFormDrawer.vue'
+import { translateTemplateRole, translateTemplateRoleRemark } from '@/utils/template-display'
 
 const { t } = useI18n()
 const roles = ref<Role[]>([])

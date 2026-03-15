@@ -8,7 +8,7 @@
       <div class="user-chip">
         <el-avatar :src="avatarUrl">{{ initials }}</el-avatar>
         <div>
-          <strong>{{ authStore.profile?.nickname || t('layout.consoleAdmin') }}</strong>
+          <strong>{{ displayNickname }}</strong>
           <p>{{ authStore.profile?.username || 'admin' }}</p>
         </div>
       </div>
@@ -31,6 +31,7 @@ import { resetDynamicRoutes } from '@/router'
 import { useAuthStore } from '@/store/auth'
 import { useAppStore } from '@/store/app'
 import { usePermissionStore } from '@/store/permission'
+import { translateTemplateNickname } from '@/utils/template-display'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -43,7 +44,10 @@ const selectedLocale = computed({
   set: (value) => setLocale(value),
 })
 
-const initials = computed(() => (authStore.profile?.nickname || t('layout.consoleAdmin')).slice(0, 2).toUpperCase())
+const displayNickname = computed(
+  () => translateTemplateNickname(authStore.profile?.username, authStore.profile?.nickname) || t('layout.consoleAdmin'),
+)
+const initials = computed(() => displayNickname.value.slice(0, 2).toUpperCase())
 const avatarUrl = computed(() => resolveAvatarUrl(authStore.profile?.avatar))
 
 async function onCommand(command: string) {

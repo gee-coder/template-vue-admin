@@ -8,11 +8,11 @@
       <div class="overview-actions">
         <div class="overview-chip">
           <span>{{ t('dashboard.currentAccount') }}</span>
-          <strong>{{ authStore.profile?.nickname || t('layout.consoleAdmin') }}</strong>
+          <strong>{{ displayNickname }}</strong>
         </div>
         <div class="overview-chip">
           <span>{{ t('dashboard.role') }}</span>
-          <strong>{{ authStore.profile?.roles?.join(' / ') || 'super_admin' }}</strong>
+          <strong>{{ displayRoles }}</strong>
         </div>
       </div>
     </header>
@@ -74,9 +74,20 @@ import type { EChartsOption } from 'echarts'
 import DashboardChartCard from '@/components/dashboard/DashboardChartCard.vue'
 import { useI18n } from '@/i18n'
 import { useAuthStore } from '@/store/auth'
+import { translateTemplateNickname, translateTemplateRole } from '@/utils/template-display'
 
 const authStore = useAuthStore()
 const { t, tm } = useI18n()
+const displayNickname = computed(
+  () => translateTemplateNickname(authStore.profile?.username, authStore.profile?.nickname) || t('layout.consoleAdmin'),
+)
+const displayRoles = computed(() => {
+  const roles = authStore.profile?.roles || []
+  if (!roles.length) {
+    return translateTemplateRole('super_admin')
+  }
+  return roles.map((item) => translateTemplateRole(item)).join(' / ')
+})
 
 const metrics = computed(() => [
   {

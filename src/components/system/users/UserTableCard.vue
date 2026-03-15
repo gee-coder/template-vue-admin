@@ -6,7 +6,7 @@
           <div class="user-cell">
             <el-avatar :src="resolveAvatarUrl(row.avatar)">{{ row.nickname.slice(0, 2).toUpperCase() }}</el-avatar>
             <div>
-              <strong>{{ row.nickname }}</strong>
+              <strong>{{ translateTemplateNickname(row.username, row.nickname) || row.nickname }}</strong>
               <p>{{ row.username }}</p>
             </div>
           </div>
@@ -16,7 +16,7 @@
       <el-table-column prop="phone" :label="t('users.columns.phone')" min-width="140" />
       <el-table-column :label="t('users.columns.roles')" min-width="180">
         <template #default="{ row }">
-          <el-tag v-for="role in row.roles" :key="role.id" effect="plain">{{ role.name }}</el-tag>
+          <el-tag v-for="role in row.roles" :key="role.id" effect="plain">{{ translateTemplateRole(role) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="status" :label="t('users.columns.status')" min-width="120">
@@ -40,6 +40,7 @@
 import { resolveAvatarUrl } from '@/constants/avatar'
 import { useI18n } from '@/i18n'
 import type { User } from '@/types/user'
+import { translateTemplateNickname, translateTemplateRole } from '@/utils/template-display'
 
 defineProps<{ items: User[] }>()
 

@@ -19,6 +19,22 @@ const menuTitleKeyMap: Record<string, string> = {
   '/system/login-audits': 'routes.loginAudits',
 }
 
+const menuNameKeyMap: Record<string, string> = {
+  dashboard: 'templateSeed.dashboardMenu',
+  system: 'templateSeed.systemMenu',
+  user: 'templateSeed.usersMenu',
+  user_write: 'templateSeed.userWriteMenu',
+  role: 'templateSeed.rolesMenu',
+  role_write: 'templateSeed.roleWriteMenu',
+  menu: 'templateSeed.menusMenu',
+  menu_write: 'templateSeed.menuWriteMenu',
+  auth_setting: 'templateSeed.authSettingsMenu',
+  auth_setting_write: 'templateSeed.authSettingsWriteMenu',
+  branding_setting: 'templateSeed.brandingMenu',
+  branding_setting_write: 'templateSeed.brandingWriteMenu',
+  login_audit: 'templateSeed.loginAuditsMenu',
+}
+
 export function getMenuTitleKey(path?: string) {
   return path ? menuTitleKeyMap[path] || '' : ''
 }
@@ -75,9 +91,18 @@ export function tm<T = unknown>(path: string) {
   return fallback as T
 }
 
-export function translateMenuTitle(input: { path?: string; title?: string }) {
+export function translateMenuTitle(input: { name?: string; path?: string; title?: string }) {
   const titleKey = getMenuTitleKey(input.path)
-  return titleKey ? t(titleKey) : input.title || ''
+  if (titleKey) {
+    return t(titleKey)
+  }
+
+  const nameKey = input.name ? menuNameKeyMap[input.name] : ''
+  if (nameKey) {
+    return t(nameKey)
+  }
+
+  return input.title || ''
 }
 
 export function resolveRouteTitle(route: RouteLocationNormalizedLoaded | RouteLocationNormalizedGeneric) {

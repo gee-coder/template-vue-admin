@@ -35,7 +35,7 @@
       </el-form-item>
       <el-form-item :label="t('users.drawer.roles')">
         <el-select v-model="localForm.roleIds" multiple style="width: 100%">
-          <el-option v-for="role in roles" :key="role.id" :label="role.name" :value="role.id" />
+          <el-option v-for="role in roles" :key="role.id" :label="translateTemplateRole(role)" :value="role.id" />
         </el-select>
       </el-form-item>
     </el-form>
@@ -52,6 +52,7 @@ import AvatarField from '@/components/common/AvatarField.vue'
 import { DEFAULT_AVATAR_KEY } from '@/constants/avatar'
 import { useI18n } from '@/i18n'
 import type { Role } from '@/types/user'
+import { translateTemplateRole } from '@/utils/template-display'
 
 interface UserFormModel {
   username: string
