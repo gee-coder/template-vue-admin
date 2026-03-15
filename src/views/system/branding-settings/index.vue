@@ -8,7 +8,7 @@
         </p>
       </div>
       <div class="page-actions">
-        <el-button @click="resetToDefaults">恢复模板默认值</el-button>
+        <el-button @click="resetToDefaults">恢复模板默认</el-button>
         <el-button type="primary" :loading="saving" @click="save">保存设置</el-button>
       </div>
     </header>
@@ -31,9 +31,7 @@
 
       <article class="surface-card panel-section">
         <h3>图片素材</h3>
-        <p class="muted">
-          支持直接上传，也支持填写已有图片地址。Logo、favicon 和登录主视觉都会在保存后实时生效。
-        </p>
+        <p class="muted">支持直接上传，也支持填写已有图片地址，保存后会实时生效。</p>
 
         <div class="asset-grid">
           <div class="asset-card">
@@ -46,16 +44,17 @@
             </el-form-item>
             <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP，建议优先使用透明底 SVG。</p>
             <div class="asset-actions">
-              <div class="asset-upload-wrap">
+              <el-upload
+                ref="logoUploadRef"
+                :show-file-list="false"
+                :auto-upload="false"
+                :limit="1"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                :disabled="uploadingKind === 'logoMark'"
+                :on-change="(file) => handleAssetChange(file, 'logoMark')"
+              >
                 <el-button :loading="uploadingKind === 'logoMark'">上传 Logo</el-button>
-                <input
-                  class="asset-upload-input"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  :disabled="uploadingKind === 'logoMark'"
-                  @change="handleAssetChange($event, 'logoMark')"
-                />
-              </div>
+              </el-upload>
               <el-button @click="clearAsset('logoMark')">清空</el-button>
             </div>
           </div>
@@ -70,16 +69,17 @@
             </el-form-item>
             <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP、ICO，推荐使用 SVG 或 64 x 64 以上 PNG。</p>
             <div class="asset-actions">
-              <div class="asset-upload-wrap">
+              <el-upload
+                ref="faviconUploadRef"
+                :show-file-list="false"
+                :auto-upload="false"
+                :limit="1"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon,.ico"
+                :disabled="uploadingKind === 'favicon'"
+                :on-change="(file) => handleAssetChange(file, 'favicon')"
+              >
                 <el-button :loading="uploadingKind === 'favicon'">上传 favicon</el-button>
-                <input
-                  class="asset-upload-input"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon,.ico"
-                  :disabled="uploadingKind === 'favicon'"
-                  @change="handleAssetChange($event, 'favicon')"
-                />
-              </div>
+              </el-upload>
               <el-button @click="clearAsset('favicon')">清空</el-button>
             </div>
           </div>
@@ -94,16 +94,17 @@
             </el-form-item>
             <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP，建议使用横向大图。</p>
             <div class="asset-actions">
-              <div class="asset-upload-wrap">
+              <el-upload
+                ref="heroUploadRef"
+                :show-file-list="false"
+                :auto-upload="false"
+                :limit="1"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                :disabled="uploadingKind === 'loginHero'"
+                :on-change="(file) => handleAssetChange(file, 'loginHero')"
+              >
                 <el-button :loading="uploadingKind === 'loginHero'">上传主视觉图</el-button>
-                <input
-                  class="asset-upload-input"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  :disabled="uploadingKind === 'loginHero'"
-                  @change="handleAssetChange($event, 'loginHero')"
-                />
-              </div>
+              </el-upload>
               <el-button @click="clearAsset('loginHero')">清空</el-button>
             </div>
           </div>
@@ -129,6 +130,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import type { UploadFile, UploadInstance } from 'element-plus'
 import { useRoute } from 'vue-router'
 import { getSystemBrandingSettingsApi, updateSystemBrandingSettingsApi, uploadBrandingAssetApi } from '@/api/branding'
 import {
@@ -143,6 +145,9 @@ import type { BrandingAssetKind, BrandingSettings } from '@/types/branding'
 const route = useRoute()
 const saving = ref(false)
 const uploadingKind = ref<BrandingAssetKind | ''>('')
+const logoUploadRef = ref<UploadInstance>()
+const faviconUploadRef = ref<UploadInstance>()
+const heroUploadRef = ref<UploadInstance>()
 const form = reactive<BrandingSettings>(createDefaultBrandingSettings())
 
 const colorFields: Array<{ key: keyof BrandingSettings['theme']; label: string }> = [
@@ -210,9 +215,8 @@ async function save() {
   }
 }
 
-async function handleAssetChange(event: Event, kind: BrandingAssetKind) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
+async function handleAssetChange(uploadFile: UploadFile, kind: BrandingAssetKind) {
+  const file = uploadFile.raw
   if (!file) {
     return
   }
@@ -220,7 +224,7 @@ async function handleAssetChange(event: Event, kind: BrandingAssetKind) {
   const validationError = validateAssetFile(file, kind)
   if (validationError) {
     ElMessage.warning(validationError)
-    input.value = ''
+    clearUploadFiles(kind)
     return
   }
 
@@ -232,9 +236,19 @@ async function handleAssetChange(event: Event, kind: BrandingAssetKind) {
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '上传失败')
   } finally {
-    input.value = ''
+    clearUploadFiles(kind)
     uploadingKind.value = ''
   }
+}
+
+function clearUploadFiles(kind: BrandingAssetKind) {
+  getUploadRef(kind)?.clearFiles()
+}
+
+function getUploadRef(kind: BrandingAssetKind) {
+  if (kind === 'logoMark') return logoUploadRef.value
+  if (kind === 'favicon') return faviconUploadRef.value
+  return heroUploadRef.value
 }
 
 function assignAssetUrl(kind: BrandingAssetKind, url: string) {
@@ -376,16 +390,8 @@ function validateAssetFile(file: File, kind: BrandingAssetKind) {
   flex-wrap: wrap;
 }
 
-.asset-upload-wrap {
-  position: relative;
+.asset-actions :deep(.el-upload) {
   display: inline-flex;
-}
-
-.asset-upload-input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
 }
 
 .color-grid {

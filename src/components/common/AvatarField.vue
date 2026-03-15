@@ -7,17 +7,17 @@
         <p>{{ description }}</p>
 
         <div class="avatar-actions">
-          <input
-            ref="fileInputRef"
-            class="avatar-file-input"
-            type="file"
-            hidden
+          <el-upload
+            ref="uploadRef"
+            :show-file-list="false"
+            :auto-upload="false"
+            :limit="1"
             accept="image/png,image/jpeg,image/jpg,image/webp"
-            @change="handleFileChange"
-          />
-          <el-button :loading="uploading" type="primary" plain @click="openFilePicker">
-            上传图片
-          </el-button>
+            :disabled="uploading"
+            :on-change="handleFileChange"
+          >
+            <el-button :loading="uploading" type="primary" plain>上传图片</el-button>
+          </el-upload>
           <el-button @click="resetToDefault">恢复默认</el-button>
         </div>
 
@@ -41,6 +41,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import type { UploadFile, UploadInstance } from 'element-plus'
 import AvatarPresetPicker from '@/components/common/AvatarPresetPicker.vue'
 import { uploadAvatarAssetApi } from '@/api/auth'
 import { AVATAR_UPLOAD_REQUIREMENTS, DEFAULT_AVATAR_KEY, resolveAvatarUrl } from '@/constants/avatar'
@@ -62,20 +63,12 @@ const emit = defineEmits<{
 }>()
 
 const uploading = ref(false)
-const fileInputRef = ref<HTMLInputElement>()
+const uploadRef = ref<UploadInstance>()
 const previewUrl = computed(() => resolveAvatarUrl(props.modelValue))
 const fallbackText = computed(() => (props.title || '头像').slice(0, 2).toUpperCase())
 
-function openFilePicker() {
-  if (uploading.value) {
-    return
-  }
-  fileInputRef.value?.click()
-}
-
-async function handleFileChange(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
+async function handleFileChange(uploadFile: UploadFile) {
+  const file = uploadFile.raw
   if (!file) {
     return
   }
@@ -83,14 +76,14 @@ async function handleFileChange(event: Event) {
   const allowedTypes = ['image/png', 'image/jpeg', 'image/webp']
   if (!allowedTypes.includes(file.type)) {
     ElMessage.warning('请上传 PNG、JPG、JPEG 或 WEBP 格式的图片')
-    input.value = ''
+    uploadRef.value?.clearFiles()
     return
   }
 
   const maxSize = 2 * 1024 * 1024
   if (file.size > maxSize) {
     ElMessage.warning('单张头像图片不能超过 2MB')
-    input.value = ''
+    uploadRef.value?.clearFiles()
     return
   }
 
@@ -102,7 +95,7 @@ async function handleFileChange(event: Event) {
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '头像上传失败')
   } finally {
-    input.value = ''
+    uploadRef.value?.clearFiles()
     uploading.value = false
   }
 }
@@ -116,10 +109,6 @@ function resetToDefault() {
 .avatar-field {
   display: grid;
   gap: 16px;
-}
-
-.avatar-file-input {
-  display: none;
 }
 
 .avatar-summary {
