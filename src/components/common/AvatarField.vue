@@ -5,16 +5,22 @@
       <div class="avatar-copy">
         <strong>{{ title }}</strong>
         <p>{{ description }}</p>
+
         <div class="avatar-actions">
-          <el-upload
-            :show-file-list="false"
-            accept="image/png,image/jpeg,image/webp"
-            :http-request="uploadAvatar"
-          >
-            <el-button :loading="uploading" type="primary" plain>上传图片</el-button>
-          </el-upload>
+          <input
+            ref="fileInputRef"
+            class="avatar-file-input"
+            type="file"
+            hidden
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            @change="handleFileChange"
+          />
+          <el-button :loading="uploading" type="primary" plain @click="openFilePicker">
+            上传图片
+          </el-button>
           <el-button @click="resetToDefault">恢复默认</el-button>
         </div>
+
         <p class="avatar-requirement">
           上传要求：{{ AVATAR_UPLOAD_REQUIREMENTS.acceptedTypes }}，单张不超过
           {{ AVATAR_UPLOAD_REQUIREMENTS.maxSizeText }}，{{ AVATAR_UPLOAD_REQUIREMENTS.recommendedSize }}。
@@ -34,7 +40,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ElMessage, type UploadRequestOptions } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import AvatarPresetPicker from '@/components/common/AvatarPresetPicker.vue'
 import { uploadAvatarAssetApi } from '@/api/auth'
 import { AVATAR_UPLOAD_REQUIREMENTS, DEFAULT_AVATAR_KEY, resolveAvatarUrl } from '@/constants/avatar'
@@ -47,7 +53,7 @@ const props = withDefaults(
   }>(),
   {
     title: '更换头像',
-    description: '支持上传自定义头像，也可以继续使用系统内置头像。',
+    description: '支持上传自定义图片，也可以继续使用系统默认头像。',
   },
 )
 
@@ -56,20 +62,47 @@ const emit = defineEmits<{
 }>()
 
 const uploading = ref(false)
+const fileInputRef = ref<HTMLInputElement>()
 const previewUrl = computed(() => resolveAvatarUrl(props.modelValue))
 const fallbackText = computed(() => (props.title || '头像').slice(0, 2).toUpperCase())
 
-async function uploadAvatar(options: UploadRequestOptions) {
+function openFilePicker() {
+  if (uploading.value) {
+    return
+  }
+  fileInputRef.value?.click()
+}
+
+async function handleFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) {
+    return
+  }
+
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/webp']
+  if (!allowedTypes.includes(file.type)) {
+    ElMessage.warning('请上传 PNG、JPG、JPEG 或 WEBP 格式的图片')
+    input.value = ''
+    return
+  }
+
+  const maxSize = 2 * 1024 * 1024
+  if (file.size > maxSize) {
+    ElMessage.warning('单张头像图片不能超过 2MB')
+    input.value = ''
+    return
+  }
+
   uploading.value = true
   try {
-    const result = await uploadAvatarAssetApi(options.file as File)
+    const result = await uploadAvatarAssetApi(file)
     emit('update:modelValue', result.url)
-    options.onSuccess?.(result)
     ElMessage.success('头像图片上传成功')
   } catch (error) {
-    options.onError?.(error as Error)
     ElMessage.error(error instanceof Error ? error.message : '头像上传失败')
   } finally {
+    input.value = ''
     uploading.value = false
   }
 }
@@ -83,6 +116,10 @@ function resetToDefault() {
 .avatar-field {
   display: grid;
   gap: 16px;
+}
+
+.avatar-file-input {
+  display: none;
 }
 
 .avatar-summary {
