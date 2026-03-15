@@ -32,7 +32,7 @@
       <article class="surface-card panel-section">
         <h3>图片素材</h3>
         <p class="muted">
-          支持直接上传，也支持填写已有图片地址。Logo 和 favicon 建议尽量保持识别度高，登录主视觉建议使用横向插图。
+          支持直接上传，也支持填写已有图片地址。Logo、favicon 和登录主视觉都会在保存后实时生效。
         </p>
 
         <div class="asset-grid">
@@ -46,14 +46,16 @@
             </el-form-item>
             <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP，建议优先使用透明底 SVG。</p>
             <div class="asset-actions">
-              <input
-                ref="logoInputRef"
-                hidden
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                @change="handleAssetChange($event, 'logoMark')"
-              />
-              <el-button :loading="uploadingKind === 'logoMark'" @click="openUpload('logoMark')">上传 Logo</el-button>
+              <div class="asset-upload-wrap">
+                <el-button :loading="uploadingKind === 'logoMark'">上传 Logo</el-button>
+                <input
+                  class="asset-upload-input"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  :disabled="uploadingKind === 'logoMark'"
+                  @change="handleAssetChange($event, 'logoMark')"
+                />
+              </div>
               <el-button @click="clearAsset('logoMark')">清空</el-button>
             </div>
           </div>
@@ -68,14 +70,16 @@
             </el-form-item>
             <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP、ICO，推荐使用 SVG 或 64 x 64 以上 PNG。</p>
             <div class="asset-actions">
-              <input
-                ref="faviconInputRef"
-                hidden
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon,.ico"
-                @change="handleAssetChange($event, 'favicon')"
-              />
-              <el-button :loading="uploadingKind === 'favicon'" @click="openUpload('favicon')">上传 favicon</el-button>
+              <div class="asset-upload-wrap">
+                <el-button :loading="uploadingKind === 'favicon'">上传 favicon</el-button>
+                <input
+                  class="asset-upload-input"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon,.ico"
+                  :disabled="uploadingKind === 'favicon'"
+                  @change="handleAssetChange($event, 'favicon')"
+                />
+              </div>
               <el-button @click="clearAsset('favicon')">清空</el-button>
             </div>
           </div>
@@ -90,14 +94,16 @@
             </el-form-item>
             <p class="asset-hint">支持 PNG、JPG、JPEG、SVG、WEBP，建议使用横向大图。</p>
             <div class="asset-actions">
-              <input
-                ref="heroInputRef"
-                hidden
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                @change="handleAssetChange($event, 'loginHero')"
-              />
-              <el-button :loading="uploadingKind === 'loginHero'" @click="openUpload('loginHero')">上传主视觉图</el-button>
+              <div class="asset-upload-wrap">
+                <el-button :loading="uploadingKind === 'loginHero'">上传主视觉图</el-button>
+                <input
+                  class="asset-upload-input"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  :disabled="uploadingKind === 'loginHero'"
+                  @change="handleAssetChange($event, 'loginHero')"
+                />
+              </div>
               <el-button @click="clearAsset('loginHero')">清空</el-button>
             </div>
           </div>
@@ -138,10 +144,6 @@ const route = useRoute()
 const saving = ref(false)
 const uploadingKind = ref<BrandingAssetKind | ''>('')
 const form = reactive<BrandingSettings>(createDefaultBrandingSettings())
-
-const logoInputRef = ref<HTMLInputElement>()
-const faviconInputRef = ref<HTMLInputElement>()
-const heroInputRef = ref<HTMLInputElement>()
 
 const colorFields: Array<{ key: keyof BrandingSettings['theme']; label: string }> = [
   { key: 'primary', label: '主色' },
@@ -208,22 +210,6 @@ async function save() {
   }
 }
 
-function openUpload(kind: BrandingAssetKind) {
-  if (uploadingKind.value) {
-    return
-  }
-
-  if (kind === 'logoMark') {
-    logoInputRef.value?.click()
-    return
-  }
-  if (kind === 'favicon') {
-    faviconInputRef.value?.click()
-    return
-  }
-  heroInputRef.value?.click()
-}
-
 async function handleAssetChange(event: Event, kind: BrandingAssetKind) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
@@ -276,9 +262,10 @@ function clearAsset(kind: BrandingAssetKind) {
 }
 
 function validateAssetFile(file: File, kind: BrandingAssetKind) {
-  const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase()
+  const extension = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')).toLowerCase() : ''
   const commonExtensions = ['.png', '.jpg', '.jpeg', '.svg', '.webp']
   const allowedExtensions = kind === 'favicon' ? [...commonExtensions, '.ico'] : commonExtensions
+
   if (!allowedExtensions.includes(extension)) {
     return kind === 'favicon'
       ? '请上传 PNG、JPG、JPEG、SVG、WEBP 或 ICO 格式的 favicon'
@@ -387,6 +374,18 @@ function validateAssetFile(file: File, kind: BrandingAssetKind) {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.asset-upload-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.asset-upload-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .color-grid {
