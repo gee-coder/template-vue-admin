@@ -5,6 +5,8 @@ import type {
   LoginPayload,
   ProfileUser,
   RegisterPayload,
+  SMSCodePayload,
+  SMSCodeResponse,
   TokenPayload,
   UpdateProfilePayload,
 } from '@/types/auth'
@@ -27,6 +29,10 @@ export function loginApi(payload: LoginPayload) {
 
 export function registerApi(payload: RegisterPayload) {
   return request.post<TokenPayload>('/auth/register', payload)
+}
+
+export function sendSMSCodeApi(payload: SMSCodePayload) {
+  return request.post<SMSCodeResponse>('/auth/sms-codes', payload)
 }
 
 export function profileApi() {

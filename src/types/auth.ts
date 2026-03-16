@@ -13,6 +13,7 @@ export interface LoginPayload {
   account: string
   password: string
   loginType?: AuthLoginType
+  smsCode?: string
 }
 
 export interface RegisterPayload {
@@ -20,6 +21,19 @@ export interface RegisterPayload {
   password: string
   nickname?: string
   registerType?: AuthRegisterType
+  smsCode?: string
+}
+
+export interface SMSCodePayload {
+  phone: string
+  purpose: 'login' | 'register'
+}
+
+export interface SMSCodeResponse {
+  provider: string
+  expiresIn: number
+  cooldownIn: number
+  debugCode?: string
 }
 
 export interface ProfileUser {

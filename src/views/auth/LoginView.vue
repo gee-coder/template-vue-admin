@@ -57,10 +57,18 @@
           <el-form-item :label="t('auth.passwordLabel')">
             <el-input v-model="loginForm.password" show-password :placeholder="t('auth.loginPasswordPlaceholder')" />
           </el-form-item>
+          <el-form-item v-if="loginRequiresSMS" :label="smsCodeLabel">
+            <div class="sms-field-row">
+              <el-input v-model="loginForm.smsCode" :placeholder="smsCodePlaceholder" maxlength="8" />
+              <el-button class="sms-send" :disabled="loading || loginCooldown > 0" @click="sendSMSCode('login')">
+                {{ sendButtonText(loginCooldown) }}
+              </el-button>
+            </div>
+          </el-form-item>
           <el-button :loading="loading" type="primary" class="auth-submit" @click="submitLogin">
             {{ t('auth.loginAction') }}
           </el-button>
-          <p class="auth-helper">{{ t('auth.demoHint') }}</p>
+          <p class="auth-helper">{{ loginHelperText }}</p>
         </el-form>
 
         <el-form v-else :model="registerForm" class="auth-form" @submit.prevent="submitRegister">
@@ -69,6 +77,14 @@
           </el-form-item>
           <el-form-item :label="t('auth.nicknameLabel')">
             <el-input v-model="registerForm.nickname" :placeholder="t('auth.nicknamePlaceholder')" />
+          </el-form-item>
+          <el-form-item v-if="registerRequiresSMS" :label="smsCodeLabel">
+            <div class="sms-field-row">
+              <el-input v-model="registerForm.smsCode" :placeholder="smsCodePlaceholder" maxlength="8" />
+              <el-button class="sms-send" :disabled="loading || registerCooldown > 0" @click="sendSMSCode('register')">
+                {{ sendButtonText(registerCooldown) }}
+              </el-button>
+            </div>
           </el-form-item>
           <el-form-item :label="t('auth.passwordLabel')">
             <el-input v-model="registerForm.password" show-password :placeholder="t('auth.registerPasswordPlaceholder')" />
@@ -79,7 +95,7 @@
           <el-button :loading="loading" type="primary" class="auth-submit" @click="submitRegister">
             {{ t('auth.registerAction') }}
           </el-button>
-          <p class="auth-helper">{{ t('auth.registerHint') }}</p>
+          <p class="auth-helper">{{ registerHelperText }}</p>
         </el-form>
       </section>
     </section>
@@ -87,10 +103,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
-import { getAuthOptionsApi } from '@/api/auth'
+import { getAuthOptionsApi, sendSMSCodeApi } from '@/api/auth'
 import { branding, getBrandFallbackText } from '@/config/branding'
 import { useI18n } from '@/i18n'
 import { useAuthStore } from '@/store/auth'
@@ -103,6 +119,9 @@ const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 const brand = branding
 const { locale, localeOptions, setLocale, t, isEnglish } = useI18n()
+
+const phonePattern = /^\+?[0-9]{6,20}$/
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const selectedLocale = computed({
   get: () => locale.value,
@@ -122,10 +141,13 @@ const fallbackOptions: AuthOptions = {
 const loading = ref(false)
 const mode = ref<'login' | 'register'>('login')
 const options = ref<AuthOptions>(fallbackOptions)
+const loginCooldown = ref(0)
+const registerCooldown = ref(0)
 
 const loginForm = reactive({
   account: 'admin',
   password: 'Admin123!',
+  smsCode: '',
 })
 
 const registerForm = reactive({
@@ -133,21 +155,25 @@ const registerForm = reactive({
   nickname: '',
   password: '',
   confirmPassword: '',
+  smsCode: '',
 })
+
+let loginTimer: number | null = null
+let registerTimer: number | null = null
 
 const canRegister = computed(() => options.value.enableEmailRegistration || options.value.enablePhoneRegistration)
 const loginMethodsLabel = computed(() => {
   const labels = [t('auth.methods.username')]
   if (options.value.enableEmailLogin) labels.push(t('auth.methods.email'))
   if (options.value.enablePhoneLogin) labels.push(t('auth.methods.phone'))
-  return labels.join(isEnglish.value ? ' / ' : '、')
+  return labels.join(' / ')
 })
 const registerMethodsLabel = computed(() => {
   const labels: string[] = []
   if (options.value.enableEmailRegistration) labels.push(t('auth.methods.email'))
   if (options.value.enablePhoneRegistration) labels.push(t('auth.methods.phone'))
   if (labels.length === 0) return t('auth.methods.unavailable')
-  return labels.join(isEnglish.value ? ' / ' : '、')
+  return labels.join(' / ')
 })
 const loginPlaceholder = computed(() => {
   const samples = [t('auth.samples.admin')]
@@ -162,9 +188,59 @@ const registerPlaceholder = computed(() => {
   return samples.join(' / ') || t('auth.methods.unavailable')
 })
 
+const loginPhoneCandidate = computed(() => {
+  const account = normalizePhoneInput(loginForm.account)
+  return phonePattern.test(account) ? account : ''
+})
+
+const registerAccountType = computed<'email' | 'phone' | ''>(() => {
+  const account = registerForm.account.trim()
+  const phone = normalizePhoneInput(account)
+  if (options.value.enablePhoneRegistration && phonePattern.test(phone)) {
+    return 'phone'
+  }
+  if (options.value.enableEmailRegistration && emailPattern.test(account.toLowerCase())) {
+    return 'email'
+  }
+  return ''
+})
+
+const loginRequiresSMS = computed(() => Boolean(loginPhoneCandidate.value) && options.value.enablePhoneLogin)
+const registerRequiresSMS = computed(() => registerAccountType.value === 'phone')
+const smsCodeLabel = computed(() => (isEnglish.value ? 'SMS code' : '短信验证码'))
+const smsCodePlaceholder = computed(() => (isEnglish.value ? 'Enter the 6-digit code' : '请输入短信验证码'))
+const loginHelperText = computed(() =>
+  loginRequiresSMS.value
+    ? isEnglish.value
+      ? 'Phone sign-in requires both password and SMS verification.'
+      : '手机号登录需要同时校验密码和短信验证码。'
+    : t('auth.demoHint'),
+)
+const registerHelperText = computed(() =>
+  registerRequiresSMS.value
+    ? isEnglish.value
+      ? 'Phone registration requires a valid SMS verification code.'
+      : '手机号注册需要先完成短信验证码校验。'
+    : t('auth.registerHint'),
+)
+
 watch(canRegister, (value) => {
   if (!value && mode.value === 'register') {
     mode.value = 'login'
+  }
+})
+
+watch(loginRequiresSMS, (value) => {
+  if (!value) {
+    loginForm.smsCode = ''
+    clearCooldown('login')
+  }
+})
+
+watch(registerRequiresSMS, (value) => {
+  if (!value) {
+    registerForm.smsCode = ''
+    clearCooldown('register')
   }
 })
 
@@ -174,6 +250,11 @@ onMounted(async () => {
   } catch {
     ElMessage.warning(t('auth.warnings.loadOptions'))
   }
+})
+
+onBeforeUnmount(() => {
+  clearCooldown('login')
+  clearCooldown('register')
 })
 
 async function afterAuthSuccess(message: string) {
@@ -187,12 +268,17 @@ async function submitLogin() {
     ElMessage.warning(t('auth.warnings.incompleteLogin'))
     return
   }
+  if (loginRequiresSMS.value && !loginForm.smsCode.trim()) {
+    ElMessage.warning(isEnglish.value ? 'Please enter the SMS code first.' : '请先输入短信验证码。')
+    return
+  }
 
   loading.value = true
   try {
     await authStore.login({
       account: loginForm.account.trim(),
       password: loginForm.password,
+      smsCode: loginRequiresSMS.value ? loginForm.smsCode.trim() : undefined,
     })
     await afterAuthSuccess(t('auth.warnings.loginSuccess'))
   } catch (error) {
@@ -215,6 +301,10 @@ async function submitRegister() {
     ElMessage.warning(t('auth.warnings.mismatchPassword'))
     return
   }
+  if (registerRequiresSMS.value && !registerForm.smsCode.trim()) {
+    ElMessage.warning(isEnglish.value ? 'Please enter the SMS code first.' : '请先输入短信验证码。')
+    return
+  }
 
   loading.value = true
   try {
@@ -222,6 +312,8 @@ async function submitRegister() {
       account: registerForm.account.trim(),
       nickname: registerForm.nickname.trim(),
       password: registerForm.password,
+      registerType: registerAccountType.value === 'phone' ? 'phone' : registerAccountType.value === 'email' ? 'email' : undefined,
+      smsCode: registerRequiresSMS.value ? registerForm.smsCode.trim() : undefined,
     })
     await afterAuthSuccess(t('auth.warnings.registerSuccess'))
   } catch (error) {
@@ -229,6 +321,85 @@ async function submitRegister() {
   } finally {
     loading.value = false
   }
+}
+
+async function sendSMSCode(kind: 'login' | 'register') {
+  const phone = kind === 'login' ? loginPhoneCandidate.value : registerRequiresSMS.value ? normalizePhoneInput(registerForm.account) : ''
+  if (!phone) {
+    ElMessage.warning(isEnglish.value ? 'Please enter a valid phone number first.' : '请先输入有效的手机号。')
+    return
+  }
+
+  try {
+    const payload = await sendSMSCodeApi({
+      phone,
+      purpose: kind,
+    })
+    if (kind === 'login' && payload.debugCode) {
+      loginForm.smsCode = payload.debugCode
+    }
+    if (kind === 'register' && payload.debugCode) {
+      registerForm.smsCode = payload.debugCode
+    }
+    startCooldown(kind, payload.cooldownIn || 60)
+    ElMessage.success(buildSMSFeedback(payload.debugCode))
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : smsSendFailedText())
+  }
+}
+
+function startCooldown(kind: 'login' | 'register', seconds: number) {
+  clearCooldown(kind)
+  const counter = kind === 'login' ? loginCooldown : registerCooldown
+  counter.value = Math.max(0, Math.round(seconds))
+  const timer = window.setInterval(() => {
+    if (counter.value <= 1) {
+      clearCooldown(kind)
+      return
+    }
+    counter.value -= 1
+  }, 1000)
+
+  if (kind === 'login') {
+    loginTimer = timer
+  } else {
+    registerTimer = timer
+  }
+}
+
+function clearCooldown(kind: 'login' | 'register') {
+  if (kind === 'login' && loginTimer !== null) {
+    window.clearInterval(loginTimer)
+    loginTimer = null
+    loginCooldown.value = 0
+  }
+  if (kind === 'register' && registerTimer !== null) {
+    window.clearInterval(registerTimer)
+    registerTimer = null
+    registerCooldown.value = 0
+  }
+}
+
+function sendButtonText(seconds: number) {
+  if (seconds > 0) {
+    return isEnglish.value ? `Resend in ${seconds}s` : `${seconds} 秒后重发`
+  }
+  return isEnglish.value ? 'Send code' : '发送验证码'
+}
+
+function buildSMSFeedback(debugCode?: string) {
+  if (debugCode) {
+    return isEnglish.value ? `Verification code sent: ${debugCode}` : `验证码已发送：${debugCode}`
+  }
+  return isEnglish.value ? 'Verification code sent successfully.' : '验证码发送成功。'
+}
+
+function smsSendFailedText() {
+  return isEnglish.value ? 'Failed to send verification code.' : '验证码发送失败。'
+}
+
+function normalizePhoneInput(value: string) {
+  return value.trim().replace(/[()\s-]/g, '')
 }
 </script>
 
@@ -370,6 +541,17 @@ async function submitRegister() {
   gap: 4px;
 }
 
+.sms-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  width: 100%;
+}
+
+.sms-send {
+  min-width: 132px;
+}
+
 .auth-submit {
   width: 100%;
   margin-top: 6px;
@@ -422,6 +604,14 @@ async function submitRegister() {
 
   .auth-toolbar {
     justify-content: flex-start;
+  }
+
+  .sms-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .sms-send {
+    width: 100%;
   }
 }
 </style>
