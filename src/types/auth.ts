@@ -25,6 +25,9 @@ export interface RegisterPayload {
   password: string
   nickname?: string
   registerType?: AuthRegisterType
+  verificationCode?: string
+  captchaId?: string
+  captchaCode?: string
   smsCode?: string
 }
 
@@ -35,7 +38,7 @@ export interface SMSCodePayload {
 
 export interface EmailCodePayload {
   email: string
-  purpose: 'login' | 'two_factor'
+  purpose: 'login' | 'register' | 'two_factor'
 }
 
 export interface SMSCodeResponse {

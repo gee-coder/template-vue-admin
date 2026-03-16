@@ -122,13 +122,31 @@
           <el-form-item :label="t('auth.nicknameLabel')">
             <el-input v-model="registerForm.nickname" :placeholder="t('auth.nicknamePlaceholder')" />
           </el-form-item>
-          <el-form-item v-if="registerRequiresSMS" :label="registerCodeLabel">
+          <el-form-item v-if="registerNeedsVerificationCode" :label="registerVerificationLabel">
             <div class="code-field-row">
-              <el-input v-model="registerForm.smsCode" :placeholder="registerCodePlaceholder" maxlength="8" />
-              <el-button class="code-send" :disabled="loading || registerCooldown > 0" @click="sendRegisterSMSCode">
+              <el-input
+                v-model="registerForm.verificationCode"
+                :placeholder="registerVerificationPlaceholder"
+                maxlength="8"
+              />
+              <el-button class="code-send" :disabled="loading || registerCooldown > 0" @click="sendRegisterVerificationCode">
                 {{ sendButtonText(registerCooldown) }}
               </el-button>
             </div>
+          </el-form-item>
+          <el-form-item v-if="registerNeedsCaptcha" :label="captchaLabel">
+            <div class="captcha-row">
+              <el-input
+                v-model="registerForm.captchaCode"
+                :placeholder="captchaPlaceholder"
+                maxlength="8"
+              />
+              <button type="button" class="captcha-preview" :disabled="captchaLoading" @click="refreshRegisterCaptcha">
+                <img v-if="registerCaptcha.imageData" :src="registerCaptcha.imageData" alt="" />
+                <span v-else>{{ captchaLoading ? loadingCaptchaText : refreshCaptchaText }}</span>
+              </button>
+            </div>
+            <p class="field-tip">{{ registerCaptchaHintText }}</p>
           </el-form-item>
           <el-form-item :label="t('auth.passwordLabel')">
             <el-input v-model="registerForm.password" show-password :placeholder="t('auth.registerPasswordPlaceholder')" />
@@ -211,11 +229,18 @@ const loginCaptcha = reactive({
   imageData: '',
 })
 
+const registerCaptcha = reactive({
+  captchaId: '',
+  imageData: '',
+})
+
 const registerForm = reactive({
   account: '',
   nickname: '',
   password: '',
   confirmPassword: '',
+  verificationCode: '',
+  captchaCode: '',
   smsCode: '',
 })
 
@@ -235,6 +260,8 @@ const loginNeedsPassword = computed(() => resolvedLoginType.value === 'username'
 const usernameNeedsCaptcha = computed(() => resolvedLoginType.value === 'username' && (forceUsernameCaptcha.value || usernameFailureCount.value >= 2))
 const loginNeedsCaptcha = computed(() => resolvedLoginType.value !== 'username' || usernameNeedsCaptcha.value)
 const loginNeedsTwoFactorCode = computed(() => resolvedLoginType.value === 'username' && options.value.enableTwoFactor)
+const registerNeedsVerificationCode = computed(() => registerAccountType.value === 'email' || registerAccountType.value === 'phone')
+const registerNeedsCaptcha = computed(() => registerNeedsVerificationCode.value)
 const registerRequiresSMS = computed(() => registerAccountType.value === 'phone')
 
 const loginDescription = computed(() =>
@@ -306,8 +333,17 @@ const twoFactorHintText = computed(() => {
 })
 const smsCodeLabel = computed(() => (isEnglish.value ? 'SMS code' : '短信验证码'))
 const emailCodeLabel = computed(() => (isEnglish.value ? 'Email code' : '邮箱验证码'))
-const registerCodeLabel = computed(() => smsCodeLabel.value)
-const registerCodePlaceholder = computed(() => (isEnglish.value ? 'Enter the SMS verification code' : '请输入短信验证码'))
+const registerVerificationLabel = computed(() => (registerAccountType.value === 'email' ? emailCodeLabel.value : smsCodeLabel.value))
+const registerVerificationPlaceholder = computed(() =>
+  registerAccountType.value === 'email'
+    ? (isEnglish.value ? 'Enter the email verification code' : '请输入邮箱验证码')
+    : (isEnglish.value ? 'Enter the SMS verification code' : '请输入短信验证码'),
+)
+const registerCaptchaHintText = computed(() =>
+  isEnglish.value
+    ? 'Registration also requires an image captcha to confirm this request is coming from a real user.'
+    : '注册时也需要完成图形验证码，用来确认当前请求来自真实用户。',
+)
 const registerPlaceholder = computed(() => {
   if (options.value.enableEmailRegistration && options.value.enablePhoneRegistration) {
     return isEnglish.value ? 'name@example.com / 18800000000' : 'name@example.com / 18800000000'
@@ -340,10 +376,14 @@ const loginHelperText = computed(() => {
       : '邮箱和手机号登录只需要验证码和图形验证码。'
 })
 const registerHelperText = computed(() =>
-  registerRequiresSMS.value
-    ? isEnglish.value
-      ? 'Phone registration requires a valid SMS verification code.'
-      : '手机号注册需要先完成短信验证码校验。'
+  registerNeedsVerificationCode.value
+    ? registerAccountType.value === 'email'
+      ? (isEnglish.value
+          ? 'Email registration requires an email code, image captcha, and the password you want to set.'
+          : '邮箱注册需要邮箱验证码、图形验证码，以及你要设置的登录密码。')
+      : (isEnglish.value
+          ? 'Phone registration requires an SMS code, image captcha, and the password you want to set.'
+          : '手机号注册需要短信验证码、图形验证码，以及你要设置的登录密码。')
     : t('auth.registerHint'),
 )
 
@@ -395,12 +435,28 @@ watch(loginNeedsCaptcha, (value) => {
   }
 }, { immediate: true })
 
-watch(registerRequiresSMS, (value) => {
-  if (!value) {
-    registerForm.smsCode = ''
-    clearCooldown('register')
+watch(registerAccountType, (nextType, previousType) => {
+  registerForm.verificationCode = ''
+  registerForm.captchaCode = ''
+  registerForm.smsCode = ''
+  clearCooldown('register')
+
+  if (nextType !== previousType) {
+    if (nextType) {
+      void ensureRegisterCaptcha(true)
+    } else {
+      clearRegisterCaptcha()
+    }
   }
 })
+
+watch(registerNeedsCaptcha, (value) => {
+  if (value) {
+    void ensureRegisterCaptcha()
+  } else {
+    clearRegisterCaptcha()
+  }
+}, { immediate: true })
 
 onMounted(async () => {
   try {
@@ -476,6 +532,10 @@ async function submitRegister() {
     ElMessage.warning(t('auth.warnings.noRegister'))
     return
   }
+  if (!registerAccountType.value) {
+    ElMessage.warning(isEnglish.value ? 'Please enter a supported email or phone account.' : '请输入已开启的邮箱或手机号账号。')
+    return
+  }
   if (!normalizedRegisterAccount.value || !registerForm.password) {
     ElMessage.warning(t('auth.warnings.incompleteRegister'))
     return
@@ -484,8 +544,17 @@ async function submitRegister() {
     ElMessage.warning(t('auth.warnings.mismatchPassword'))
     return
   }
-  if (registerRequiresSMS.value && !registerForm.smsCode.trim()) {
-    ElMessage.warning(isEnglish.value ? 'Please enter the SMS code first.' : '请先输入短信验证码。')
+  if (registerNeedsVerificationCode.value && !registerForm.verificationCode.trim()) {
+    ElMessage.warning(
+      registerAccountType.value === 'email'
+        ? (isEnglish.value ? 'Please enter the email code first.' : '请先输入邮箱验证码。')
+        : (isEnglish.value ? 'Please enter the SMS code first.' : '请先输入短信验证码。'),
+    )
+    return
+  }
+  if (registerNeedsCaptcha.value && (!registerCaptcha.captchaId || !registerForm.captchaCode.trim())) {
+    await ensureRegisterCaptcha(true)
+    ElMessage.warning(isEnglish.value ? 'Please complete the image captcha first.' : '请先完成图形验证码。')
     return
   }
 
@@ -495,8 +564,11 @@ async function submitRegister() {
       account: normalizedRegisterAccount.value,
       nickname: registerForm.nickname.trim(),
       password: registerForm.password,
-      registerType: registerAccountType.value || undefined,
-      smsCode: registerRequiresSMS.value ? registerForm.smsCode.trim() : undefined,
+      registerType: registerAccountType.value,
+      verificationCode: registerNeedsVerificationCode.value ? registerForm.verificationCode.trim() : undefined,
+      captchaId: registerNeedsCaptcha.value ? registerCaptcha.captchaId : undefined,
+      captchaCode: registerNeedsCaptcha.value ? registerForm.captchaCode.trim() : undefined,
+      smsCode: registerAccountType.value === 'phone' ? registerForm.verificationCode.trim() : undefined,
     })
     await afterAuthSuccess(t('auth.warnings.registerSuccess'))
   } catch (error) {
@@ -578,12 +650,43 @@ async function sendTwoFactorCode() {
   }
 }
 
-async function sendRegisterSMSCode() {
-  if (!isValidPhone(normalizePhoneInput(normalizedRegisterAccount.value))) {
-    ElMessage.warning(isEnglish.value ? 'Please enter a valid phone number first.' : '请先输入有效的手机号。')
+async function sendRegisterVerificationCode() {
+  if (registerAccountType.value === 'email') {
+    if (!isValidEmail(normalizedRegisterAccount.value)) {
+      ElMessage.warning(isEnglish.value ? 'Please enter a valid email address first.' : '请先输入有效的邮箱地址。')
+      return
+    }
+    await sendRegisterEmailCode()
     return
   }
 
+  if (registerAccountType.value === 'phone') {
+    if (!isValidPhone(normalizePhoneInput(normalizedRegisterAccount.value))) {
+      ElMessage.warning(isEnglish.value ? 'Please enter a valid phone number first.' : '请先输入有效的手机号。')
+      return
+    }
+    await sendRegisterSMSCode()
+    return
+  }
+
+  ElMessage.warning(isEnglish.value ? 'Please enter a valid email or phone account first.' : '请先输入有效的邮箱或手机号。')
+}
+
+async function sendRegisterEmailCode() {
+  try {
+    const payload = await sendEmailCodeApi({
+      email: normalizedRegisterAccount.value.toLowerCase(),
+      purpose: 'register',
+    })
+    applyDebugCode(payload, 'register')
+    startCooldown('register', payload.cooldownIn || 60)
+    ElMessage.success(buildCodeFeedback(payload, emailCodeLabel.value))
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : failedToSendCodeText())
+  }
+}
+
+async function sendRegisterSMSCode() {
   try {
     const payload = await sendSMSCodeApi({
       phone: normalizePhoneInput(normalizedRegisterAccount.value),
@@ -604,6 +707,13 @@ async function ensureLoginCaptcha(force = false) {
   await refreshLoginCaptcha()
 }
 
+async function ensureRegisterCaptcha(force = false) {
+  if (!force && registerCaptcha.captchaId && registerCaptcha.imageData) {
+    return
+  }
+  await refreshRegisterCaptcha()
+}
+
 async function refreshLoginCaptcha() {
   captchaLoading.value = true
   try {
@@ -618,10 +728,30 @@ async function refreshLoginCaptcha() {
   }
 }
 
+async function refreshRegisterCaptcha() {
+  captchaLoading.value = true
+  try {
+    const payload = await getCaptchaApi()
+    registerCaptcha.captchaId = payload.captchaId
+    registerCaptcha.imageData = payload.imageData
+    registerForm.captchaCode = ''
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : (isEnglish.value ? 'Failed to load captcha.' : '图形验证码加载失败。'))
+  } finally {
+    captchaLoading.value = false
+  }
+}
+
 function clearLoginCaptcha() {
   loginCaptcha.captchaId = ''
   loginCaptcha.imageData = ''
   loginForm.captchaCode = ''
+}
+
+function clearRegisterCaptcha() {
+  registerCaptcha.captchaId = ''
+  registerCaptcha.imageData = ''
+  registerForm.captchaCode = ''
 }
 
 async function handleLoginFailure(message: string) {
@@ -721,7 +851,7 @@ function applyDebugCode(payload: SMSCodeResponse, kind: 'login' | 'register') {
     loginForm.verificationCode = payload.debugCode
     return
   }
-  registerForm.smsCode = payload.debugCode
+  registerForm.verificationCode = payload.debugCode
 }
 
 function detectLoginType(account: string, authOptions: AuthOptions): AuthLoginType {
