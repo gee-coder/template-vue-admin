@@ -7,13 +7,17 @@ export interface AuthOptions {
   enablePhoneLogin: boolean
   enableEmailRegistration: boolean
   enablePhoneRegistration: boolean
+  enableTwoFactor: boolean
 }
 
 export interface LoginPayload {
   account: string
-  password: string
+  password?: string
   loginType?: AuthLoginType
-  smsCode?: string
+  verificationCode?: string
+  captchaId?: string
+  captchaCode?: string
+  twoFactorCode?: string
 }
 
 export interface RegisterPayload {
@@ -26,12 +30,36 @@ export interface RegisterPayload {
 
 export interface SMSCodePayload {
   phone: string
-  purpose: 'login' | 'register'
+  purpose: 'login' | 'register' | 'two_factor'
+}
+
+export interface EmailCodePayload {
+  email: string
+  purpose: 'login' | 'two_factor'
 }
 
 export interface SMSCodeResponse {
   provider: string
   expiresIn: number
+  cooldownIn: number
+  debugCode?: string
+}
+
+export interface CaptchaPayload {
+  captchaId: string
+  imageData: string
+  expiresIn: number
+}
+
+export interface TwoFactorCodePayload {
+  account: string
+  loginType?: 'username'
+}
+
+export interface TwoFactorCodeResponse {
+  channel: 'email' | 'phone'
+  target: string
+  provider: string
   cooldownIn: number
   debugCode?: string
 }

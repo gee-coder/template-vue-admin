@@ -27,6 +27,13 @@
             </div>
             <el-switch v-model="form.enablePhoneLogin" />
           </div>
+          <div class="setting-item">
+            <div>
+              <strong>{{ twoFactorTitle }}</strong>
+              <p class="muted">{{ twoFactorDescription }}</p>
+            </div>
+            <el-switch v-model="form.enableTwoFactor" />
+          </div>
         </div>
       </article>
 
@@ -39,14 +46,14 @@
               <strong>{{ t('authSettings.registerSection.emailTitle') }}</strong>
               <p class="muted">{{ t('authSettings.registerSection.emailDescription') }}</p>
             </div>
-            <el-switch v-model="form.enableEmailRegistration" :disabled="!form.enableEmailLogin" />
+            <el-switch v-model="form.enableEmailRegistration" />
           </div>
           <div class="setting-item">
             <div>
               <strong>{{ t('authSettings.registerSection.phoneTitle') }}</strong>
               <p class="muted">{{ t('authSettings.registerSection.phoneDescription') }}</p>
             </div>
-            <el-switch v-model="form.enablePhoneRegistration" :disabled="!form.enablePhoneLogin" />
+            <el-switch v-model="form.enablePhoneRegistration" />
           </div>
         </div>
       </article>
@@ -55,13 +62,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getSystemAuthSettingsApi, updateSystemAuthSettingsApi } from '@/api/auth'
 import { useI18n } from '@/i18n'
 import type { AuthOptions } from '@/types/auth'
 
-const { t } = useI18n()
+const { t, isEnglish } = useI18n()
 const saving = ref(false)
 
 const form = reactive<AuthOptions>({
@@ -70,20 +77,14 @@ const form = reactive<AuthOptions>({
   enablePhoneLogin: true,
   enableEmailRegistration: true,
   enablePhoneRegistration: true,
+  enableTwoFactor: false,
 })
 
-watch(
-  () => form.enableEmailLogin,
-  (enabled) => {
-    if (!enabled) form.enableEmailRegistration = false
-  },
-)
-
-watch(
-  () => form.enablePhoneLogin,
-  (enabled) => {
-    if (!enabled) form.enablePhoneRegistration = false
-  },
+const twoFactorTitle = computed(() => (isEnglish.value ? 'Two-factor authentication' : '双因子认证'))
+const twoFactorDescription = computed(() =>
+  isEnglish.value
+    ? 'When enabled, every login method must complete one more factor after the primary credential.'
+    : '开启后，所有登录方式都需要在主认证之外再完成一次二次校验。',
 )
 
 onMounted(load)
